@@ -240,15 +240,57 @@ function faisca(x,y){
   setTimeout(()=>f.remove(),800);
 }
 
+
+
+  
 /* ELEMENTOS */
+let mensagemTimeout = null; // Para controlar o tempo da mensagem
+
 elementos.forEach(e=>{
   e.onclick=()=>{
     e.classList.toggle("ativo");
     const r=e.getBoundingClientRect();
     faisca(r.left+r.width/2,r.top);
     vibrar(60);
+
+    // Mensagem temporária
+    if(mensagemTimeout) clearTimeout(mensagemTimeout); // Limpa mensagem anterior
+
+    if(e.classList.contains("ativo")){
+      switch(true){
+        case e.classList.contains("ar"):
+          mensagem.innerText = "🌬️ Ar ativado — mentalize a leveza e liberdade do vento";
+          break;
+        case e.classList.contains("fogo"):
+          mensagem.innerText = "🔥 Fogo ativado — sinta a energia e o impulso da ação";
+          break;
+        case e.classList.contains("agua"):
+          mensagem.innerText = "💧 Água ativada — conecte-se com a fluidez e emoções";
+          break;
+        case e.classList.contains("terra"):
+          mensagem.innerText = "🌱 Terra ativada — sintonize com a estabilidade e o enraizamento";
+          break;
+      }
+    } else {
+      mensagem.innerText = "Elemento desativado — recoloque sua atenção no altar";
+    }
+
+    // Volta para mensagem padrão do altar após 3 segundos
+    mensagemTimeout = setTimeout(()=>{
+      if(vela.classList.contains("acesa") && tempo>0){
+        mensagem.innerText = mensagensVela[Math.floor((30-tempo)/5)];
+      } else if(vela.classList.contains("acesa") && tempo<=0){
+        mensagem.innerText = "Vela pronta para selar";
+      } else {
+        mensagem.innerText = "";
+      }
+    },3000);
   }
 });
+
+
+
+  
 
 /* MENSAGENS DA VELA */
 const mensagensVela=[
@@ -424,6 +466,7 @@ document.getElementById("entrarAltar").onclick = () => {
 
 </body>
 </html>
+
 
 
 
