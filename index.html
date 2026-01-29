@@ -292,10 +292,15 @@ setInterval(()=>{
   }
 },1600);
 
-/* SELAR */
+
+  
+  
+  
+  /* SELAR */
+
 document.getElementById("selar").onclick=()=>{
   if(!campo.value.trim()){
-    mensagem.innerText="Digite uma intenção antes de ativar";
+    mensagem.innerText="Digite uma intenção antes de selar";
     return;
   }
   if(!vela.classList.contains("acesa")){
@@ -307,8 +312,15 @@ document.getElementById("selar").onclick=()=>{
     return;
   }
 
+  // NOVA VERIFICAÇÃO: todos os elementos precisam estar ativos
+  const todosAtivos = Array.from(elementos).every(el => el.classList.contains("ativo"));
+  if(!todosAtivos){
+    mensagem.innerText="Todos os elementos precisam estar ativos para selar a intenção";
+    return;
+  }
+
   vibrar([400,100,500]);
-  mensagem.innerText="INTENÇÃO ATIVADA — propagando energia ";
+  mensagem.innerText="INTENÇÃO SELADA — energia emanando";
 
   for(let i=0;i<3;i++){
     setTimeout(()=>{
@@ -319,6 +331,14 @@ document.getElementById("selar").onclick=()=>{
     },i*400);
   }
 };
+
+
+
+  
+
+
+
+  
 
 /* TAROT - sem repetições até acabar o baralho */
 const cartas=[
@@ -404,6 +424,7 @@ document.getElementById("entrarAltar").onclick = () => {
 
 </body>
 </html>
+
 
 
 
