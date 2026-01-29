@@ -315,7 +315,7 @@ document.getElementById("selar").onclick=()=>{
   // NOVA VERIFICAÇÃO: todos os elementos precisam estar ativos
   const todosAtivos = Array.from(elementos).every(el => el.classList.contains("ativo"));
   if(!todosAtivos){
-    mensagem.innerText="Todos os elementos precisam estar ativos para ativar a intenção";
+    mensagem.innerText="Todos os elementos precisam estar ativos para propagar a intenção";
     return;
   }
 
@@ -424,6 +424,7 @@ document.getElementById("entrarAltar").onclick = () => {
 
 </body>
 </html>
+
 
 
 
