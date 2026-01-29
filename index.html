@@ -33,7 +33,6 @@ header{
   justify-items:center;
   position:relative;
   transition:box-shadow 1.5s ease, opacity 1.5s ease;
-  overflow:visible;
 }
 
 .altar.iniciado{
@@ -69,8 +68,6 @@ header{
   cursor:pointer;
   transition:.3s;
   opacity:.5;
-  z-index:2; /* para ficar acima das linhas */
-  position:relative;
 }
 
 .vela.acesa{
@@ -189,32 +186,6 @@ button:active{transform:scale(.95)}
   font-weight:bold;
   pointer-events:none;
 }
-
-/* SVG TRAÇOS DE LUZ */
-#energiaSVG{
-  position:absolute;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  pointer-events:none;
-  z-index:-1; /* fica atrás de elementos e vela */
-}
-.linhaEnergia{
-  stroke:cyan;
-  stroke-width:2;
-  stroke-linecap:round;
-  stroke-dasharray:8;
-  opacity:0.2; /* quase transparente */
-  animation:animLinha 1s linear infinite, pulsar 1.5s ease-in-out infinite;
-}
-@keyframes animLinha{
-  to{stroke-dashoffset:16;}
-}
-@keyframes pulsar{
-  0%,100%{opacity:0.15;}
-  50%{opacity:0.35;}
-}
 </style>
 </head>
 
@@ -266,7 +237,6 @@ button:active{transform:scale(.95)}
   <div class="vela" id="vela">🕯️</div>
   <div class="elemento fogo">🔥</div>
   <div class="elemento agua">💧</div>
-  <svg id="energiaSVG"></svg>
 </div>
 
 <div id="mensagens">
@@ -281,7 +251,6 @@ button:active{transform:scale(.95)}
 <button id="lerTarot">LER TAROT</button>
 
 <script>
-// mesmo JS do seu código original, nenhuma alteração aqui
 const altar=document.getElementById("altar");
 const vela=document.getElementById("vela");
 const elementos=document.querySelectorAll(".elemento");
@@ -290,14 +259,15 @@ const mensagem=document.getElementById("mensagem");
 const tarotInstrucao=document.getElementById("tarotInstrucao");
 const tarotCarta=document.getElementById("tarotCarta");
 const campo=document.getElementById("intencao");
-const svgEnergia=document.getElementById("energiaSVG");
 
 let tempo=0,timer=null,modoIniciado=false,holdTimer=null;
 const vibrar=p=>navigator.vibrate&&navigator.vibrate(p);
 
+/* ENERGIA GLOBAL */
 let energia = 100;
 const energiaMax = 100;
 
+/* BARRA VISUAL DE ENERGIA */
 const barraEnergia = document.getElementById("barraEnergia");
 const energiaTexto = document.getElementById("energiaTexto");
 
@@ -318,6 +288,7 @@ setInterval(()=>{
 
 atualizarBarraEnergia();
 
+/* FAÍSCA */
 function faisca(x,y){
   const f=document.createElement("div");
   f.className="faisca";
@@ -328,32 +299,194 @@ function faisca(x,y){
   setTimeout(()=>f.remove(),800);
 }
 
+/* ELEMENTOS */
 let mensagemTimeout = null;
 
-/* TRAÇOS DE LUZ */
-function atualizarLinhasEnergia(){
-  svgEnergia.innerHTML="";
-  const ativos = Array.from(elementos).filter(e=>e.classList.contains("ativo"));
-  for(let i=0;i<ativos.length;i++){
-    for(let j=i+1;j<ativos.length;j++){
-      const a=ativos[i].getBoundingClientRect();
-      const b=ativos[j].getBoundingClientRect();
-      const x1=a.left+a.width/2 - altar.getBoundingClientRect().left;
-      const y1=a.top+a.height/2 - altar.getBoundingClientRect().top;
-      const x2=b.left+b.width/2 - altar.getBoundingClientRect().left;
-      const y2=b.top+b.height/2 - altar.getBoundingClientRect().top;
-      const linha=document.createElementNS("http://www.w3.org/2000/svg","line");
-      linha.setAttribute("x1",x1);
-      linha.setAttribute("y1",y1);
-      linha.setAttribute("x2",x2);
-      linha.setAttribute("y2",y2);
-      linha.classList.add("linhaEnergia");
-      svgEnergia.appendChild(linha);
+elementos.forEach(e=>{
+  e.onclick=()=>{
+    e.classList.toggle("ativo");
+    const r=e.getBoundingClientRect();
+    faisca(r.left+r.width/2,r.top);
+    vibrar(60);
+
+    if(mensagemTimeout) clearTimeout(mensagemTimeout);
+
+    if(e.classList.contains("ativo")){
+      switch(true){
+        case e.classList.contains("ar"):
+          mensagem.innerText = "🌬️ Ar ativado — mentalize a leveza e liberdade do vento";
+          break;
+        case e.classList.contains("fogo"):
+          mensagem.innerText = "🔥 Fogo ativado — sinta a energia e o impulso da ação";
+          break;
+        case e.classList.contains("agua"):
+          mensagem.innerText = "💧 Água ativada — conecte-se com a fluidez e emoções";
+          break;
+        case e.classList.contains("terra"):
+          mensagem.innerText = "🌱 Terra ativada — sintonize com a estabilidade e o enraizamento";
+          break;
+      }
+    } else {
+      mensagem.innerText = "Elemento desativado — recoloque sua atenção no altar";
     }
+
+    mensagemTimeout = setTimeout(()=>{
+      if(vela.classList.contains("acesa") && tempo>0){
+        mensagem.innerText = mensagensVela[Math.floor((30-tempo)/5)];
+      } else if(vela.classList.contains("acesa") && tempo<=0){
+        mensagem.innerText = "Vela pronta para selar";
+      } else {
+        mensagem.innerText = "";
+      }
+    },10000);
+  }
+});
+
+const mensagensVela=[
+  "Respire e concentre-se",
+  "Visualize o intento",
+  "Sinta a energia subir",
+  "Prepare para a ativação"
+];
+
+/* VELA */
+vela.onclick=()=>{
+  if(vela.classList.contains("acesa")){
+    vela.classList.remove("acesa");
+    clearInterval(timer);
+    tempoEl.innerText="";
+    mensagem.innerText="Vela apagada";
+    return;
+  }
+  vela.classList.add("acesa");
+  tempo=30;
+  let idx=0;
+  mensagem.innerText="Vela acesa";
+  vibrar(200);
+  timer=setInterval(()=>{
+    tempo--;
+    if(tempo>0){
+      if(tempo%5===0 && idx<mensagensVela.length-1) idx++;
+      tempoEl.innerText=`${tempo}s — ${mensagensVela[idx]}`;
+    }else{
+      clearInterval(timer);
+      tempoEl.innerText="Vela pronta para operação";
+    }
+  },1000);
+};
+
+/* FAÍSCAS DA VELA */
+setInterval(()=>{
+  if(vela.classList.contains("acesa")){
+    const r=vela.getBoundingClientRect();
+    faisca(r.left+r.width/2,r.top);
+  }
+},1600);
+
+/* SELAR / ATIVAR INTENÇÃO */
+document.getElementById("selar").onclick = () => {
+  if(!campo.value.trim()){
+    mensagem.innerText = "Digite uma intenção antes de ativar";
+    return;
+  }
+  if(!vela.classList.contains("acesa")){
+    mensagem.innerText = "A vela precisa estar acesa";
+    return;
+  }
+  if(tempo > 0){
+    mensagem.innerText = "Aguarde a vela concluir";
+    return;
+  }
+
+  const todosAtivos = Array.from(elementos).every(el => el.classList.contains("ativo"));
+  if(!todosAtivos){
+    mensagem.innerText = "Todos os elementos precisam estar ativos para propagar a intenção";
+    return;
+  }
+
+  const gasto = 30;
+  if(energia < gasto){
+    mensagem.innerText = "Energia insuficiente para propagar a intenção";
+    return;
+  }
+  energia -= gasto;
+  atualizarBarraEnergia();
+
+  vibrar([400,100,500]);
+  mensagem.innerText = `INTENÇÃO ATIVADA — energia sendo direcionada...\nEnergia usada: ${gasto}, restante: ${energia}`;
+
+  // **ESCONDE MENSAGEM DE ENERGIA APÓS 5 SEGUNDOS**
+  setTimeout(()=>{mensagem.innerText="";},5000);
+
+  for(let i = 0; i < 3; i++){
+    setTimeout(()=>{
+      const h = document.createElement("div");
+      h.className = "halo";
+      altar.appendChild(h);
+      setTimeout(()=>h.remove(),1200);
+    }, i*400);
+  }
+};
+
+/* TAROT */
+const cartas=[
+  ["O MAGO","Manifestação / Poder / Ação","Use sua vontade"],
+  ["A SACERDOTISA","Intuição / Mistério / Silêncio","Ouça o invisível"],
+  ["A IMPERATRIZ","Fertilidade / Abundância / Criatividade","Valorize a vida que cria"],
+  ["O IMPERADOR","Estrutura / Autoridade / Estabilidade","Assuma controle com sabedoria"],
+  ["O HIEROFANTE","Tradição / Sabedoria / Orientação","Siga os caminhos do conhecimento"],
+  ["OS AMANTES","Amor / Escolhas / União","Harmonize decisões do coração"],
+  ["O CARRO","Determinação / Vitória / Movimento","Siga com foco e coragem"],
+  ["A FORÇA","Coragem / Domínio / Paciência","Controle gentilmente suas paixões"],
+  ["O EREMITA","Introspecção / Sabedoria / Busca","Procure a verdade interior"],
+  ["A RODA DA FORTUNA","Ciclos / Destino / Mudança","Aceite as mudanças inevitáveis"],
+  ["A JUSTIÇA","Equilíbrio / Verdade / Responsabilidade","Aja com retidão e clareza"],
+  ["O PENDURADO","Sacrifício / Pausa / Reflexão","Veja o mundo de outra perspectiva"],
+  ["A MORTE","Transformação / Fim / Renovação","Aceite o fim como novo começo"],
+  ["A TEMPERANÇA","Equilíbrio / Moderação / Cura","Harmonize e encontre o meio termo"],
+  ["O DIABO","Apego / Ilusão / Tentação","Libere amarras e vícios"],
+  ["A TORRE","Ruptura / Verdade / Libertação","Nada falso permanece"],
+  ["A ESTRELA","Esperança / Inspiração / Cura","Confie no universo"],
+  ["A LUA","Intuição / Mistério / Ilusão","Cuidado com enganos e emoções ocultas"],
+  ["O SOL","Clareza / Vitalidade / Êxito","A verdade ilumina"],
+  ["O JULGAMENTO","Renascimento / Avaliação / Chamado","Reflita e renasça"],
+  ["O MUNDO","Conclusão / Integração / Plenitude","Celebre conquistas e ciclos completos"]
+];
+
+let baralho = [...cartas];
+function shuffleDeck() {
+  for (let i = baralho.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [baralho[i], baralho[j]] = [baralho[j], baralho[i]];
   }
 }
+shuffleDeck();
 
-// restante do JS permanece igual
+document.getElementById("lerTarot").onclick = () => {
+  if (baralho.length === 0) {
+    baralho = [...cartas];
+    shuffleDeck();
+  }
+
+  tarotCarta.classList.remove("show");
+  tarotInstrucao.innerHTML = 'Mentalize sua pergunta <span class="loading"><span>.</span><span>.</span><span>.</span></span>';
+
+  setTimeout(() => {
+    tarotInstrucao.innerHTML = '<div id="joker">🃏</div>';
+    setTimeout(() => {
+      const c = baralho.pop();
+      tarotInstrucao.innerText = "";
+      tarotCarta.innerHTML = `<strong>${c[0]}</strong><br>${c[1]}<br><em>${c[2]}</em>`;
+      tarotCarta.classList.add("show");
+      vibrar(150);
+    }, 3000);
+  }, 4000);
+};
+
+/* MODAL INTRO */
+document.getElementById("entrarAltar").onclick = () => {
+  document.getElementById("modalIntro").style.display = "none";
+};
 </script>
 
 <footer style="
