@@ -279,7 +279,7 @@ vela.onclick=()=>{
       tempoEl.innerText=`${tempo}s — ${mensagensVela[idx]}`;
     }else{
       clearInterval(timer);
-      tempoEl.innerText="Vela pronta para selar";
+      tempoEl.innerText="Vela pronta para operação";
     }
   },1000);
 };
@@ -295,7 +295,7 @@ setInterval(()=>{
 /* SELAR */
 document.getElementById("selar").onclick=()=>{
   if(!campo.value.trim()){
-    mensagem.innerText="Digite uma intenção antes de selar";
+    mensagem.innerText="Digite uma intenção antes de ativar";
     return;
   }
   if(!vela.classList.contains("acesa")){
@@ -404,5 +404,6 @@ document.getElementById("entrarAltar").onclick = () => {
 
 </body>
 </html>
+
 
 
