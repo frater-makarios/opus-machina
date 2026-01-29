@@ -264,24 +264,21 @@ let tempo=0,timer=null,modoIniciado=false,holdTimer=null;
 const vibrar=p=>navigator.vibrate&&navigator.vibrate(p);
 
 /* ENERGIA GLOBAL */
-let energia = 100; // energia do operador, persistente
+let energia = 100;
 const energiaMax = 100;
 
 /* BARRA VISUAL DE ENERGIA */
 const barraEnergia = document.getElementById("barraEnergia");
 const energiaTexto = document.getElementById("energiaTexto");
 
-// Atualiza barra e cor conforme energia
 function atualizarBarraEnergia(){
   barraEnergia.style.width = (energia/energiaMax*100) + "%";
-  // Cor: verde > amarelo > vermelho
   if(energia>60) barraEnergia.style.background="limegreen";
   else if(energia>30) barraEnergia.style.background="gold";
   else barraEnergia.style.background="red";
   energiaTexto.innerText = `${energia} / ${energiaMax}`;
 }
 
-// Recupera energia gradualmente
 setInterval(()=>{
   if(energia<energiaMax){
     energia++;
@@ -345,7 +342,6 @@ elementos.forEach(e=>{
   }
 });
 
-/* MENSAGENS DA VELA */
 const mensagensVela=[
   "Respire e concentre-se",
   "Visualize o intento",
@@ -402,14 +398,12 @@ document.getElementById("selar").onclick = () => {
     return;
   }
 
-  // Verifica todos os elementos
   const todosAtivos = Array.from(elementos).every(el => el.classList.contains("ativo"));
   if(!todosAtivos){
     mensagem.innerText = "Todos os elementos precisam estar ativos para propagar a intenção";
     return;
   }
 
-  // Verifica energia
   const gasto = 30;
   if(energia < gasto){
     mensagem.innerText = "Energia insuficiente para propagar a intenção";
@@ -418,11 +412,12 @@ document.getElementById("selar").onclick = () => {
   energia -= gasto;
   atualizarBarraEnergia();
 
-  // Intenção ativada
   vibrar([400,100,500]);
   mensagem.innerText = `INTENÇÃO ATIVADA — energia sendo direcionada...\nEnergia usada: ${gasto}, restante: ${energia}`;
 
-  // Efeito visual do halo
+  // **ESCONDE MENSAGEM DE ENERGIA APÓS 5 SEGUNDOS**
+  setTimeout(()=>{mensagem.innerText="";},5000);
+
   for(let i = 0; i < 3; i++){
     setTimeout(()=>{
       const h = document.createElement("div");
@@ -433,7 +428,7 @@ document.getElementById("selar").onclick = () => {
   }
 };
 
-/* TAROT - sem repetições até acabar o baralho */
+/* TAROT */
 const cartas=[
   ["O MAGO","Manifestação / Poder / Ação","Use sua vontade"],
   ["A SACERDOTISA","Intuição / Mistério / Silêncio","Ouça o invisível"],
