@@ -186,6 +186,26 @@ button:active{transform:scale(.95)}
   font-weight:bold;
   pointer-events:none;
 }
+
+/* SVG TRAÇOS DE LUZ */
+#energiaSVG{
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+}
+.linhaEnergia{
+  stroke:cyan;
+  stroke-width:2;
+  stroke-linecap:round;
+  stroke-dasharray:8;
+  animation:animLinha 1s linear infinite;
+}
+@keyframes animLinha{
+  to{stroke-dashoffset:16;}
+}
 </style>
 </head>
 
@@ -237,6 +257,7 @@ button:active{transform:scale(.95)}
   <div class="vela" id="vela">🕯️</div>
   <div class="elemento fogo">🔥</div>
   <div class="elemento agua">💧</div>
+  <svg id="energiaSVG"></svg>
 </div>
 
 <div id="mensagens">
@@ -259,15 +280,14 @@ const mensagem=document.getElementById("mensagem");
 const tarotInstrucao=document.getElementById("tarotInstrucao");
 const tarotCarta=document.getElementById("tarotCarta");
 const campo=document.getElementById("intencao");
+const svgEnergia=document.getElementById("energiaSVG");
 
 let tempo=0,timer=null,modoIniciado=false,holdTimer=null;
 const vibrar=p=>navigator.vibrate&&navigator.vibrate(p);
 
-/* ENERGIA GLOBAL */
 let energia = 100;
 const energiaMax = 100;
 
-/* BARRA VISUAL DE ENERGIA */
 const barraEnergia = document.getElementById("barraEnergia");
 const energiaTexto = document.getElementById("energiaTexto");
 
@@ -288,7 +308,6 @@ setInterval(()=>{
 
 atualizarBarraEnergia();
 
-/* FAÍSCA */
 function faisca(x,y){
   const f=document.createElement("div");
   f.className="faisca";
@@ -299,8 +318,30 @@ function faisca(x,y){
   setTimeout(()=>f.remove(),800);
 }
 
-/* ELEMENTOS */
 let mensagemTimeout = null;
+
+/* TRAÇOS DE LUZ */
+function atualizarLinhasEnergia(){
+  svgEnergia.innerHTML="";
+  const ativos = Array.from(elementos).filter(e=>e.classList.contains("ativo"));
+  for(let i=0;i<ativos.length;i++){
+    for(let j=i+1;j<ativos.length;j++){
+      const a=ativos[i].getBoundingClientRect();
+      const b=ativos[j].getBoundingClientRect();
+      const x1=a.left+a.width/2 - altar.getBoundingClientRect().left;
+      const y1=a.top+a.height/2 - altar.getBoundingClientRect().top;
+      const x2=b.left+b.width/2 - altar.getBoundingClientRect().left;
+      const y2=b.top+b.height/2 - altar.getBoundingClientRect().top;
+      const linha=document.createElementNS("http://www.w3.org/2000/svg","line");
+      linha.setAttribute("x1",x1);
+      linha.setAttribute("y1",y1);
+      linha.setAttribute("x2",x2);
+      linha.setAttribute("y2",y2);
+      linha.classList.add("linhaEnergia");
+      svgEnergia.appendChild(linha);
+    }
+  }
+}
 
 elementos.forEach(e=>{
   e.onclick=()=>{
@@ -308,6 +349,8 @@ elementos.forEach(e=>{
     const r=e.getBoundingClientRect();
     faisca(r.left+r.width/2,r.top);
     vibrar(60);
+
+    atualizarLinhasEnergia();
 
     if(mensagemTimeout) clearTimeout(mensagemTimeout);
 
@@ -349,13 +392,13 @@ const mensagensVela=[
   "Prepare para a ativação"
 ];
 
-/* VELA */
 vela.onclick=()=>{
   if(vela.classList.contains("acesa")){
     vela.classList.remove("acesa");
     clearInterval(timer);
     tempoEl.innerText="";
     mensagem.innerText="Vela apagada";
+    atualizarLinhasEnergia();
     return;
   }
   vela.classList.add("acesa");
@@ -375,7 +418,6 @@ vela.onclick=()=>{
   },1000);
 };
 
-/* FAÍSCAS DA VELA */
 setInterval(()=>{
   if(vela.classList.contains("acesa")){
     const r=vela.getBoundingClientRect();
@@ -383,7 +425,6 @@ setInterval(()=>{
   }
 },1600);
 
-/* SELAR / ATIVAR INTENÇÃO */
 document.getElementById("selar").onclick = () => {
   if(!campo.value.trim()){
     mensagem.innerText = "Digite uma intenção antes de ativar";
@@ -414,8 +455,6 @@ document.getElementById("selar").onclick = () => {
 
   vibrar([400,100,500]);
   mensagem.innerText = `INTENÇÃO ATIVADA — energia sendo direcionada...\nEnergia usada: ${gasto}, restante: ${energia}`;
-
-  // **ESCONDE MENSAGEM DE ENERGIA APÓS 5 SEGUNDOS**
   setTimeout(()=>{mensagem.innerText="";},5000);
 
   for(let i = 0; i < 3; i++){
@@ -426,6 +465,8 @@ document.getElementById("selar").onclick = () => {
       setTimeout(()=>h.remove(),1200);
     }, i*400);
   }
+
+  atualizarLinhasEnergia();
 };
 
 /* TAROT */
@@ -512,4 +553,3 @@ document.getElementById("entrarAltar").onclick = () => {
 
 </body>
 </html>
-
