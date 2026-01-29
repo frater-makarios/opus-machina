@@ -339,39 +339,53 @@ setInterval(()=>{
   
   
   /* SELAR */
-
-document.getElementById("selar").onclick=()=>{
+document.getElementById("selar").onclick = () => {
   if(!campo.value.trim()){
-    mensagem.innerText="Digite uma intenção antes de ativar";
+    mensagem.innerText = "Digite uma intenção antes de ativar";
     return;
   }
   if(!vela.classList.contains("acesa")){
-    mensagem.innerText="A vela precisa estar acesa";
+    mensagem.innerText = "A vela precisa estar acesa";
     return;
   }
-  if(tempo>0){
-    mensagem.innerText="Aguarde a vela concluir";
+  if(tempo > 0){
+    mensagem.innerText = "Aguarde a vela concluir";
     return;
   }
 
   // NOVA VERIFICAÇÃO: todos os elementos precisam estar ativos
   const todosAtivos = Array.from(elementos).every(el => el.classList.contains("ativo"));
   if(!todosAtivos){
-    mensagem.innerText="Todos os elementos precisam estar ativos para propagar a intenção";
+    mensagem.innerText = "Todos os elementos precisam estar ativos para propagar a intenção";
     return;
   }
 
+  // Intenção ativada
   vibrar([400,100,500]);
-  mensagem.innerText="INTENÇÃO ATIVADA — /emanando_energia";
+  mensagem.innerText = "INTENÇÃO ATIVADA — energia sendo direcionada...";
 
-  for(let i=0;i<3;i++){
+  // Efeito visual do halo
+  for(let i = 0; i < 3; i++){
     setTimeout(()=>{
-      const h=document.createElement("div");
-      h.className="halo";
+      const h = document.createElement("div");
+      h.className = "halo";
       altar.appendChild(h);
       setTimeout(()=>h.remove(),1200);
-    },i*400);
+    }, i*400);
   }
+
+  // -------------------------------
+  // GASTAR ENERGIA / DESPRENDER ATENÇÃO
+  // Aqui você pode rodar o código interno do “gasto de energia”
+  let energia = 100; // exemplo: energia inicial do operador
+  const gasto = 25;  // quanto a intenção consome
+  energia -= gasto;
+
+  console.log(`Energia restante: ${energia}`);
+  mensagem.innerText += `\nEnergia usada: ${gasto}, restante: ${energia}`;
+
+  // Você pode colocar aqui outros efeitos de foco, animações ou chamadas de função que simulam atenção sendo dirigida
+  // -------------------------------
 };
 
 
@@ -466,6 +480,7 @@ document.getElementById("entrarAltar").onclick = () => {
 
 </body>
 </html>
+
 
 
 
