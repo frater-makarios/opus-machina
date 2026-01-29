@@ -326,6 +326,7 @@ document.getElementById("selar").onclick=()=>{
 };
 
 /* TAROT */
+/* TAROT - baralho embaralhado */
 const cartas=[
 ["O MAGO","Manifestação / Poder / Ação","Use sua vontade"],
 ["A SACERDOTISA","Intuição / Mistério / Silêncio","Ouça o invisível"],
@@ -349,6 +350,12 @@ const cartas=[
 ["O JULGAMENTO","Renascimento / Avaliação / Chamado","Reflita e renasça"],
 ["O MUNDO","Conclusão / Integração / Plenitude","Celebre conquistas e ciclos completos"]
 ];
+
+// Função para embaralhar
+function embaralhar(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() *
+
 
 document.getElementById("lerTarot").onclick=()=>{
   tarotCarta.classList.remove("show");
@@ -401,5 +408,6 @@ document.getElementById("entrarAltar").onclick = () => {
 </body>
 
 </html>
+
 
 
