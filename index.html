@@ -300,7 +300,7 @@ setInterval(()=>{
 
 document.getElementById("selar").onclick=()=>{
   if(!campo.value.trim()){
-    mensagem.innerText="Digite uma intenção antes de selar";
+    mensagem.innerText="Digite uma intenção antes de ativar";
     return;
   }
   if(!vela.classList.contains("acesa")){
@@ -315,12 +315,12 @@ document.getElementById("selar").onclick=()=>{
   // NOVA VERIFICAÇÃO: todos os elementos precisam estar ativos
   const todosAtivos = Array.from(elementos).every(el => el.classList.contains("ativo"));
   if(!todosAtivos){
-    mensagem.innerText="Todos os elementos precisam estar ativos para selar a intenção";
+    mensagem.innerText="Todos os elementos precisam estar ativos para ativar a intenção";
     return;
   }
 
   vibrar([400,100,500]);
-  mensagem.innerText="INTENÇÃO SELADA — energia emanando";
+  mensagem.innerText="INTENÇÃO ATIVADA — /emanando_energia";
 
   for(let i=0;i<3;i++){
     setTimeout(()=>{
@@ -424,6 +424,7 @@ document.getElementById("entrarAltar").onclick = () => {
 
 </body>
 </html>
+
 
 
 
