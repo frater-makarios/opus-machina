@@ -325,36 +325,78 @@ document.getElementById("selar").onclick=()=>{
   }
 };
 
-/* TAROT */
-/* TAROT - baralho embaralhado */
+
+
+
+
+  
+
+/* TAROT - sem repetições até acabar o baralho */
 const cartas=[
-["O MAGO","Manifestação / Poder / Ação","Use sua vontade"],
-["A SACERDOTISA","Intuição / Mistério / Silêncio","Ouça o invisível"],
-["A IMPERATRIZ","Fertilidade / Abundância / Criatividade","Valorize a vida que cria"],
-["O IMPERADOR","Estrutura / Autoridade / Estabilidade","Assuma controle com sabedoria"],
-["O HIEROFANTE","Tradição / Sabedoria / Orientação","Siga os caminhos do conhecimento"],
-["OS AMANTES","Amor / Escolhas / União","Harmonize decisões do coração"],
-["O CARRO","Determinação / Vitória / Movimento","Siga com foco e coragem"],
-["A FORÇA","Coragem / Domínio / Paciência","Controle gentilmente suas paixões"],
-["O EREMISTA","Introspecção / Sabedoria / Busca","Procure a verdade interior"],
-["A RODA DA FORTUNA","Ciclos / Destino / Mudança","Aceite as mudanças inevitáveis"],
-["A JUSTIÇA","Equilíbrio / Verdade / Responsabilidade","Aja com retidão e clareza"],
-["O PENDURADO","Sacrifício / Pausa / Reflexão","Veja o mundo de outra perspectiva"],
-["A MORTE","Transformação / Fim / Renovação","Aceite o fim como novo começo"],
-["A TEMPERANÇA","Equilíbrio / Moderação / Cura","Harmonize e encontre o meio termo"],
-["O DIABO","Apego / Ilusão / Tentação","Libere amarras e vícios"],
-["A TORRE","Ruptura / Verdade / Libertação","Nada falso permanece"],
-["A ESTRELA","Esperança / Inspiração / Cura","Confie no universo"],
-["A LUA","Intuição / Mistério / Ilusão","Cuidado com enganos e emoções ocultas"],
-["O SOL","Clareza / Vitalidade / Êxito","A verdade ilumina"],
-["O JULGAMENTO","Renascimento / Avaliação / Chamado","Reflita e renasça"],
-["O MUNDO","Conclusão / Integração / Plenitude","Celebre conquistas e ciclos completos"]
+  ["O MAGO","Manifestação / Poder / Ação","Use sua vontade"],
+  ["A SACERDOTISA","Intuição / Mistério / Silêncio","Ouça o invisível"],
+  ["A IMPERATRIZ","Fertilidade / Abundância / Criatividade","Valorize a vida que cria"],
+  ["O IMPERADOR","Estrutura / Autoridade / Estabilidade","Assuma controle com sabedoria"],
+  ["O HIEROFANTE","Tradição / Sabedoria / Orientação","Siga os caminhos do conhecimento"],
+  ["OS AMANTES","Amor / Escolhas / União","Harmonize decisões do coração"],
+  ["O CARRO","Determinação / Vitória / Movimento","Siga com foco e coragem"],
+  ["A FORÇA","Coragem / Domínio / Paciência","Controle gentilmente suas paixões"],
+  ["O EREMISTA","Introspecção / Sabedoria / Busca","Procure a verdade interior"],
+  ["A RODA DA FORTUNA","Ciclos / Destino / Mudança","Aceite as mudanças inevitáveis"],
+  ["A JUSTIÇA","Equilíbrio / Verdade / Responsabilidade","Aja com retidão e clareza"],
+  ["O PENDURADO","Sacrifício / Pausa / Reflexão","Veja o mundo de outra perspectiva"],
+  ["A MORTE","Transformação / Fim / Renovação","Aceite o fim como novo começo"],
+  ["A TEMPERANÇA","Equilíbrio / Moderação / Cura","Harmonize e encontre o meio termo"],
+  ["O DIABO","Apego / Ilusão / Tentação","Libere amarras e vícios"],
+  ["A TORRE","Ruptura / Verdade / Libertação","Nada falso permanece"],
+  ["A ESTRELA","Esperança / Inspiração / Cura","Confie no universo"],
+  ["A LUA","Intuição / Mistério / Ilusão","Cuidado com enganos e emoções ocultas"],
+  ["O SOL","Clareza / Vitalidade / Êxito","A verdade ilumina"],
+  ["O JULGAMENTO","Renascimento / Avaliação / Chamado","Reflita e renasça"],
+  ["O MUNDO","Conclusão / Integração / Plenitude","Celebre conquistas e ciclos completos"]
 ];
 
-// Função para embaralhar
-function embaralhar(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() *
+// Cria uma cópia do baralho e embaralha
+let baralho = [...cartas];
+function shuffleDeck() {
+  for (let i = baralho.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [baralho[i], baralho[j]] = [baralho[j], baralho[i]];
+  }
+}
+shuffleDeck();
+
+document.getElementById("lerTarot").onclick = () => {
+  if (baralho.length === 0) { // reembaralha se acabar
+    baralho = [...cartas];
+    shuffleDeck();
+  }
+
+  tarotCarta.classList.remove("show");
+  tarotInstrucao.innerHTML = 'Mentalize sua pergunta <span class="loading"><span>.</span><span>.</span><span>.</span></span>';
+  
+  setTimeout(() => {
+    tarotInstrucao.innerHTML = '<div id="joker">🃏</div>';
+    setTimeout(() => {
+      const c = baralho.pop(); // pega a última carta do baralho
+      tarotInstrucao.innerText = "";
+      tarotCarta.innerHTML = `<strong>${c[0]}</strong><br>${c[1]}<br><em>${c[2]}</em>`;
+      tarotCarta.classList.add("show");
+      vibrar(150);
+    }, 1200);
+  }, 3000);
+};
+
+
+
+
+
+
+
+
+
+
+  
 
 
 document.getElementById("lerTarot").onclick=()=>{
@@ -408,6 +450,7 @@ document.getElementById("entrarAltar").onclick = () => {
 </body>
 
 </html>
+
 
 
 
