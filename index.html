@@ -158,6 +158,34 @@ button{
   border:2px solid #666;
 }
 button:active{transform:scale(.95)}
+
+/* BARRA DE ENERGIA */
+#barraEnergiaContainer{
+  width:300px;
+  height:20px;
+  margin:20px auto 0;
+  border:2px solid #555;
+  background:#222;
+  position:relative;
+}
+#barraEnergia{
+  height:100%;
+  width:100%;
+  background:limegreen;
+  transition: width 0.3s linear, background 0.3s linear;
+}
+#energiaTexto{
+  position:absolute;
+  width:100%;
+  text-align:center;
+  top:0;
+  left:0;
+  font-size:12px;
+  line-height:20px;
+  color:#000;
+  font-weight:bold;
+  pointer-events:none;
+}
 </style>
 </head>
 
@@ -197,6 +225,12 @@ button:active{transform:scale(.95)}
 
 <header>Opus Machina ∴ 0.1</header>
 
+<!-- BARRA DE ENERGIA -->
+<div id="barraEnergiaContainer">
+  <div id="barraEnergia"></div>
+  <div id="energiaTexto">100 / 100</div>
+</div>
+
 <div class="altar" id="altar">
   <div class="elemento ar">🌬️</div>
   <div class="elemento terra">🌱</div>
@@ -231,6 +265,31 @@ const vibrar=p=>navigator.vibrate&&navigator.vibrate(p);
 
 /* ENERGIA GLOBAL */
 let energia = 100; // energia do operador, persistente
+const energiaMax = 100;
+
+/* BARRA VISUAL DE ENERGIA */
+const barraEnergia = document.getElementById("barraEnergia");
+const energiaTexto = document.getElementById("energiaTexto");
+
+// Atualiza barra e cor conforme energia
+function atualizarBarraEnergia(){
+  barraEnergia.style.width = (energia/energiaMax*100) + "%";
+  // Cor: verde > amarelo > vermelho
+  if(energia>60) barraEnergia.style.background="limegreen";
+  else if(energia>30) barraEnergia.style.background="gold";
+  else barraEnergia.style.background="red";
+  energiaTexto.innerText = `${energia} / ${energiaMax}`;
+}
+
+// Recupera energia gradualmente
+setInterval(()=>{
+  if(energia<energiaMax){
+    energia++;
+    atualizarBarraEnergia();
+  }
+},1000);
+
+atualizarBarraEnergia();
 
 /* FAÍSCA */
 function faisca(x,y){
@@ -244,7 +303,7 @@ function faisca(x,y){
 }
 
 /* ELEMENTOS */
-let mensagemTimeout = null; // Para controlar o tempo da mensagem
+let mensagemTimeout = null;
 
 elementos.forEach(e=>{
   e.onclick=()=>{
@@ -253,7 +312,6 @@ elementos.forEach(e=>{
     faisca(r.left+r.width/2,r.top);
     vibrar(60);
 
-    // Mensagem temporária
     if(mensagemTimeout) clearTimeout(mensagemTimeout);
 
     if(e.classList.contains("ativo")){
@@ -275,7 +333,6 @@ elementos.forEach(e=>{
       mensagem.innerText = "Elemento desativado — recoloque sua atenção no altar";
     }
 
-    // Volta para mensagem padrão do altar após 10s
     mensagemTimeout = setTimeout(()=>{
       if(vela.classList.contains("acesa") && tempo>0){
         mensagem.innerText = mensagensVela[Math.floor((30-tempo)/5)];
@@ -359,6 +416,7 @@ document.getElementById("selar").onclick = () => {
     return;
   }
   energia -= gasto;
+  atualizarBarraEnergia();
 
   // Intenção ativada
   vibrar([400,100,500]);
@@ -410,7 +468,7 @@ function shuffleDeck() {
 shuffleDeck();
 
 document.getElementById("lerTarot").onclick = () => {
-  if (baralho.length === 0) { // reembaralha se acabar
+  if (baralho.length === 0) {
     baralho = [...cartas];
     shuffleDeck();
   }
