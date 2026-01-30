@@ -8,7 +8,7 @@
         :root {
             --amber: #ffb000;
             --amber-bright: #ffcc55;
-            --amber-dim: #885f00;
+            --amber-dim: #443000;
             --bg: #050505;
         }
 
@@ -26,6 +26,7 @@
             overflow: hidden;
         }
 
+        /* Scanlines */
         body::before {
             content: " "; display: block; position: absolute;
             top: 0; left: 0; bottom: 0; right: 0;
@@ -60,7 +61,6 @@
 
         .node.active { background: var(--amber); color: #000; box-shadow: 0 0 20px var(--amber); }
 
-        /* Símbolos */
         .symbol { width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; margin-bottom: 5px; }
         .fogo .symbol { border-bottom: 18px solid var(--amber); }
         .ar .symbol { border-bottom: 18px solid var(--amber); position: relative; }
@@ -68,11 +68,6 @@
         .agua .symbol { border-top: 18px solid var(--amber); }
         .terra .symbol { border-top: 18px solid var(--amber); position: relative; }
         .terra .symbol::after { content:''; position:absolute; top:-12px; left:-10px; width:20px; height:2px; background:var(--amber); }
-        .node.active .symbol, .node.active .symbol::after { border-color: transparent transparent #000 transparent; background: #000; }
-        .node.active .agua .symbol, .node.active .terra .symbol { border-color: #000 transparent transparent transparent; }
-
-        .node b { font-size: 0.8rem; }
-        .node small { font-size: 0.55rem; font-weight: bold; }
 
         .vela-container { grid-area: vela; display: flex; flex-direction: column; align-items: center; }
         .candle-base { width: 20px; height: 45px; border: 2px solid var(--amber); position: relative; }
@@ -90,35 +85,44 @@
             background: rgba(20, 10, 0, 0.8); min-height: 60px;
         }
 
-        /* Botão de Divinação */
         #divine-btn {
             display: none; margin-top: 20px;
-            background: #fff; color: #000;
-            border: none; padding: 12px 24px;
+            background: transparent; color: var(--amber);
+            border: 1px solid var(--amber); padding: 12px 24px;
             font-family: inherit; font-weight: bold;
             cursor: pointer; letter-spacing: 2px;
-            animation: pulse 1.5s infinite;
+            transition: 0.3s;
         }
+        #divine-btn:hover { background: var(--amber); color: #000; }
 
-        /* Modal da Carta */
+        /* Modal e Loading */
         #card-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); z-index: 200;
+            background: rgba(0,0,0,0.98); z-index: 200;
             flex-direction: column; align-items: center; justify-content: center;
             padding: 20px; text-align: center;
         }
 
-        .card-display {
-            border: 3px solid var(--amber); padding: 20px;
-            max-width: 300px; background: #111;
-            box-shadow: 0 0 30px var(--amber-dim);
+        #loading-screen {
+            display: none; color: var(--amber); font-size: 1.2rem;
         }
 
-        .card-title { font-size: 1.5rem; margin: 10px 0; color: var(--amber); }
-        .card-desc { font-size: 0.9rem; color: #ccc; line-height: 1.4; }
+        .card-display {
+            display: none; border: 2px solid var(--amber); padding: 30px;
+            max-width: 350px; background: #0a0a0a;
+            box-shadow: 0 0 30px var(--amber-dim);
+            animation: glitch-in 0.3s ease;
+        }
 
-        @keyframes flicker { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
-        @keyframes pulse { 0% { opacity: 0.7; } 50% { opacity: 1; } 100% { opacity: 0.7; } }
+        .card-title { font-size: 1.6rem; margin: 15px 0; color: var(--amber); border-bottom: 1px solid var(--amber-dim); padding-bottom: 10px; }
+        .card-desc { font-size: 0.95rem; color: #eee; line-height: 1.5; text-align: justify; }
+
+        @keyframes flicker { 0% { transform: scale(1); } 100% { transform: scale(1.05); } }
+        @keyframes glitch-in {
+            0% { transform: translateX(-10px); opacity: 0; }
+            50% { transform: translateX(10px); }
+            100% { transform: translateX(0); opacity: 1; }
+        }
 
         .ar { grid-area: ar; } .terra { grid-area: terra; }
         .fogo { grid-area: fogo; } .agua { grid-area: agua; }
@@ -127,7 +131,7 @@
 <body>
 
     <div id="ui-wrapper">
-        <header>OPUS MACHINA // V3</header>
+        <header>:: OPUS MACHINA ::</header>
 
         <div class="altar-grid">
             <button class="node ar" onclick="toggleElement(this, 'AR')">
@@ -152,16 +156,21 @@
             </button>
         </div>
 
-        <div id="status-log">SISTEMA OFFLINE.<br>ATIVE OS QUATRO ELEMENTOS.</div>
-        <button id="divine-btn" onclick="openOracle()">[ INICIAR DIVINAÇÃO ]</button>
+        <div id="status-log">AGUARDANDO CONEXÃO ELEMENTAR...</div>
+        <button id="divine-btn" onclick="startDivination()">[ SCANNER DE DESTINO ]</button>
     </div>
 
-    <div id="card-modal" onclick="this.style.display='none'">
-        <div class="card-display">
-            <small>ARQUÉTIPO DETECTADO:</small>
-            <div class="card-title" id="oracle-title">A TORRE</div>
-            <p class="card-desc" id="oracle-desc">Descrição aqui...</p>
-            <small style="color:var(--amber-dim)">[ TOQUE PARA FECHAR ]</small>
+    <div id="card-modal">
+        <div id="loading-screen">
+            <p id="loading-text">CALIBRANDO FREQUÊNCIAS...</p>
+            <div id="loading-bar">]----------[</div>
+        </div>
+
+        <div class="card-display" id="card-result">
+            <small style="letter-spacing: 3px;">ARQUÉTIPO IDENTIFICADO</small>
+            <div class="card-title" id="oracle-title">...</div>
+            <p class="card-desc" id="oracle-desc">...</p>
+            <button onclick="closeOracle()" style="background:transparent; color:var(--amber-dim); border:none; cursor:pointer; margin-top:20px; font-family:inherit;">[ REINICIAR SISTEMA ]</button>
         </div>
     </div>
 
@@ -170,16 +179,14 @@
         const log = document.getElementById('status-log');
         const candle = document.getElementById('candle');
         const divineBtn = document.getElementById('divine-btn');
-
+        
         const deck = [
-            { t: "O MAGO", d: "Domínio das ferramentas. O poder de manifestar a vontade através da tecnologia." },
-            { t: "A SACERDOTISA", d: "Conhecimento oculto nos bancos de dados. Silêncio e intuição profunda." },
-            { t: "O EREMITA", d: "Busca por verdade interna. Desconecte-se do ruído para encontrar o sinal." },
-            { t: "A RODA", d: "Ciclos de sistema. O que sobe, desce. Adapte-se à mudança de frequência." },
-            { t: "A JUSTIÇA", d: "Equilíbrio de equações. Ação e reação em perfeita sincronia lógica." },
-            { t: "A TORRE", d: "Ruptura necessária. Estruturas obsoletas colapsam para o novo surgir." },
-            { t: "A ESTRELA", d: "Esperança codificada. Luz guia no fim do túnel de dados." },
-            { t: "O LOUCO", d: "O salto no vazio. Início de uma jornada sem medo do erro de sistema." }
+            { t: "O MAGO", d: "Sinal forte de manifestação. Seus comandos estão sendo processados pela realidade. Domine suas ferramentas." },
+            { t: "A TORRE", d: "ALERTA: Colapso de sistema iminente. Estruturas rígidas precisam cair para que o novo código seja escrito." },
+            { t: "O EREMITA", d: "Modo Offline necessário. Busque o sinal dentro do silêncio. A resposta não está na rede externa." },
+            { t: "A ESTRELA", d: "Sincronia recuperada. Há uma luz guia nos dados. Mantenha o fluxo e a esperança." },
+            { t: "O LOUCO", d: "Risco calculado. Inicie o novo processo sem medo do erro 404. O salto é o próprio caminho." },
+            { t: "O DIABO", d: "Loop detectado. Você está preso a padrões obsoletos ou vícios de interface. Quebre o ciclo." }
         ];
 
         function toggleElement(el, name) {
@@ -188,20 +195,43 @@
 
             if (activeNodes.size === 4) {
                 candle.classList.add('active');
-                log.innerHTML = "ALTAR EM EQUILÍBRIO.<br>SINAL ORACULAR DISPONÍVEL.";
+                log.innerHTML = "CONEXÃO ESTABELECIDA.<br>SEQUÊNCIA DE DIVINAÇÃO PRONTA.";
                 divineBtn.style.display = "block";
             } else {
                 candle.classList.remove('active');
                 divineBtn.style.display = "none";
-                log.innerHTML = activeNodes.size === 0 ? "SISTEMA OFFLINE." : "CARREGANDO FLUXO ELEMENTAR...";
+                log.innerHTML = activeNodes.size === 0 ? "AGUARDANDO CONEXÃO..." : "ELEMENTOS EM SINCRONIZAÇÃO...";
             }
         }
 
-        function openOracle() {
+        function startDivination() {
+            document.getElementById('card-modal').style.display = 'flex';
+            document.getElementById('loading-screen').style.display = 'block';
+            document.getElementById('card-result').style.display = 'none';
+            
+            let steps = ["PROCESSANDO ÉTER...", "LENDO FLUXO DE DADOS...", "DECODIFICANDO ARQUÉTIPO...", "FINALIZANDO..."];
+            let i = 0;
+            
+            const interval = setInterval(() => {
+                document.getElementById('loading-text').innerText = steps[i];
+                i++;
+                if (i >= steps.length) {
+                    clearInterval(interval);
+                    showResult();
+                }
+            }, 800);
+        }
+
+        function showResult() {
             const card = deck[Math.floor(Math.random() * deck.length)];
+            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('card-result').style.display = 'block';
             document.getElementById('oracle-title').innerText = card.t;
             document.getElementById('oracle-desc').innerText = card.d;
-            document.getElementById('card-modal').style.display = 'flex';
+        }
+
+        function closeOracle() {
+            document.getElementById('card-modal').style.display = 'none';
         }
     </script>
 </body>
