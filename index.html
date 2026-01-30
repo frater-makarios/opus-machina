@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OPUS MACHINA // ORACLE V5</title>
+    <title>OPUS MACHINA // ORACLE V5.1</title>
     <style>
         :root {
             --amber: #ffb000;
@@ -106,15 +106,15 @@
         }
 
         #mentalize-timer {
-            width: 200px; height: 2px;
+            width: 250px; height: 1px;
             background: var(--amber-dim);
-            margin: 20px auto; position: relative;
+            margin: 30px auto; position: relative;
             overflow: hidden;
         }
 
         #timer-bar {
             width: 100%; height: 100%;
-            background: var(--amber);
+            background: var(--amber-bright);
             transform: translateX(-100%);
         }
 
@@ -164,21 +164,21 @@
         </div>
 
         <div id="status-log">AGUARDANDO CONEXÃO ELEMENTAR...</div>
-        <button id="divine-btn" onclick="initRitual()">[ INICIAR LEITURA ]</button>
+        <button id="divine-btn" onclick="initRitual()">[ INICIAR CONSULTA ]</button>
     </div>
 
     <div id="card-modal">
         <div id="ritual-steps">
-            <p id="instruction-text">MANTENHA O FOCO NO ALTAR...</p>
+            <p id="instruction-text">RESPIRE E MENTALIZE SUA PERGUNTA...</p>
             <div id="mentalize-timer"><div id="timer-bar"></div></div>
-            <p id="sub-instruction" style="font-size: 0.7rem; opacity: 0.6; letter-spacing: 2px;">MENTALIZE SUA PERGUNTA AGORA</p>
+            <p id="sub-instruction" style="font-size: 0.65rem; opacity: 0.6; letter-spacing: 3px; font-weight: bold;">SINTONIZANDO INTENÇÃO ORACULAR</p>
         </div>
 
         <div class="card-display" id="card-result">
-            <small style="letter-spacing: 3px;">RESPOSTA DO SISTEMA</small>
+            <small style="letter-spacing: 3px; opacity: 0.7;">RESPOSTA DO SISTEMA</small>
             <div class="card-title" id="oracle-title">...</div>
             <p class="card-desc" id="oracle-desc">...</p>
-            <button onclick="closeOracle()" style="background:transparent; color:var(--amber-dim); border:none; cursor:pointer; margin-top:20px; font-family:inherit;">[ REINICIAR SISTEMA ]</button>
+            <button onclick="closeOracle()" style="background:transparent; color:var(--amber-dim); border:none; cursor:pointer; margin-top:20px; font-family:inherit; letter-spacing: 1px;">[ FINALIZAR SESSÃO ]</button>
         </div>
     </div>
 
@@ -190,13 +190,13 @@
         
         const deckOriginal = [
             { t: "O MAGO", d: "A resposta está em suas mãos. Use as ferramentas disponíveis para codificar sua própria realidade." },
-            { t: "A TORRE", d: "Sua pergunta aponta para algo que precisa ser demolido. Não tente consertar o que deve cair." },
-            { t: "O EREMITA", d: "Retire-se para processar os dados. A resposta não virá do barulho externo, mas do seu núcleo." },
-            { t: "A ESTRELA", d: "Otimismo detectado. O caminho está limpo. Prossiga com fé na lógica do universo." },
-            { t: "O LOUCO", d: "Sua pergunta requer um salto de fé. O risco de erro é alto, mas a recompensa é o novo." },
-            { t: "O DIABO", d: "Cuidado com a obsessão. Você está rodando em um loop de desejos que escravizam seu sistema." },
-            { t: "A MORTE", d: "O processo atual deve ser encerrado. Aceite o reboot para que a nova versão possa carregar." },
-            { t: "A LUA", d: "Sinal instável. Há interferência e ilusões. Espere a poeira de dados baixar para decidir." }
+            { t: "A TORRE", d: "Sua pergunta aponta para algo que precisa ser demolido. Não tente consertar o que deve cair por obsolescência." },
+            { t: "O EREMITA", d: "Retire-se para processar os dados. A resposta não virá do barulho externo, mas do seu núcleo central." },
+            { t: "A ESTRELA", d: "Otimismo detectado. O caminho está limpo e o sinal é forte. Prossiga com fé na lógica do universo." },
+            { t: "O LOUCO", d: "Sua pergunta requer um salto de fé. O risco de erro existe, mas a recompensa é o novo código de vida." },
+            { t: "O DIABO", d: "Cuidado com a obsessão. Você está rodando em um loop de desejos que escravizam sua interface mental." },
+            { t: "A MORTE", d: "O processo atual deve ser encerrado. Aceite o reboot total para que a nova versão possa carregar." },
+            { t: "A LUA", d: "Sinal instável. Há muita interferência e ilusões na rede. Espere a poeira de dados baixar para decidir." }
         ];
 
         let currentDeck = [...deckOriginal];
@@ -217,12 +217,12 @@
 
             if (activeNodes.size === 4) {
                 candle.classList.add('active');
-                log.innerHTML = "ALTAR EM EQUILÍBRIO.<br>SINAL ORACULAR DISPONÍVEL.";
+                log.innerHTML = "ALTAR EM EQUILÍBRIO TOTAL.<br>CONEXÃO ORACULAR DISPONÍVEL.";
                 divineBtn.style.display = "block";
             } else {
                 candle.classList.remove('active');
                 divineBtn.style.display = "none";
-                log.innerHTML = activeNodes.size === 0 ? "AGUARDANDO CONEXÃO..." : "SINCRONIZANDO ELEMENTOS...";
+                log.innerHTML = activeNodes.size === 0 ? "AGUARDANDO CONEXÃO..." : "CALIBRANDO ELEMENTOS...";
             }
         }
 
@@ -235,27 +235,29 @@
             const text = document.getElementById('instruction-text');
             const sub = document.getElementById('sub-instruction');
 
-            // Etapa 1: Mentalização (5 segundos)
-            text.innerText = "MENTALIZE SUA PERGUNTA...";
-            sub.style.opacity = "1";
-            bar.style.transition = "transform 5s linear";
-            
+            // Reset da barra
+            bar.style.transition = "none";
+            bar.style.transform = "translateX(-100%)";
+
+            // Etapa 1: Mentalização (10 segundos)
             setTimeout(() => {
+                text.innerText = "RESPIRE E MENTALIZE SUA PERGUNTA...";
+                bar.style.transition = "transform 10s linear";
                 bar.style.transform = "translateX(0%)";
-            }, 50);
+            }, 100);
 
             setTimeout(() => {
-                // Etapa 2: Processamento (2 segundos)
-                text.innerText = "DECODIFICANDO RESPOSTA...";
-                sub.innerText = "PROCESSANDO ÉTER DIGITAL";
-                bar.style.transition = "none";
-                bar.style.transform = "translateX(-100%)";
+                // Etapa 2: Processamento (2.5 segundos)
+                text.innerText = "SINAL RECEBIDO. DECODIFICANDO...";
+                sub.innerText = "EXTRAINDO ARQUÉTIPO DA REDE";
+                bar.style.transition = "opacity 0.5s";
+                bar.style.opacity = "0";
                 
                 setTimeout(() => {
                     showResult();
-                }, 2000);
+                }, 2500);
 
-            }, 5050);
+            }, 10100); // 10 segundos + delay inicial
         }
 
         function showResult() {
@@ -269,11 +271,13 @@
             document.getElementById('card-result').style.display = 'block';
             document.getElementById('oracle-title').innerText = card.t;
             document.getElementById('oracle-desc').innerText = card.d;
+            
+            // Reset de opacidade da barra para a próxima vez
+            document.getElementById('timer-bar').style.opacity = "1";
         }
 
         function closeOracle() {
             document.getElementById('card-modal').style.display = 'none';
-            // Reset do timer para a próxima
             document.getElementById('timer-bar').style.transform = "translateX(-100%)";
         }
     </script>
