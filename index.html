@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OPUS MACHINA // ORACLE V4</title>
+    <title>OPUS MACHINA // ORACLE V5</title>
     <style>
         :root {
             --amber: #ffb000;
@@ -26,7 +26,6 @@
             overflow: hidden;
         }
 
-        /* Scanlines */
         body::before {
             content: " "; display: block; position: absolute;
             top: 0; left: 0; bottom: 0; right: 0;
@@ -91,11 +90,9 @@
             border: 1px solid var(--amber); padding: 12px 24px;
             font-family: inherit; font-weight: bold;
             cursor: pointer; letter-spacing: 2px;
-            transition: 0.3s;
         }
-        #divine-btn:hover { background: var(--amber); color: #000; }
 
-        /* Modal e Loading */
+        /* MODAL E INTERFACE DE DIVINAÇÃO */
         #card-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.98); z-index: 200;
@@ -103,8 +100,22 @@
             padding: 20px; text-align: center;
         }
 
-        #loading-screen {
-            display: none; color: var(--amber); font-size: 1rem;
+        #ritual-steps {
+            color: var(--amber); font-size: 1rem;
+            max-width: 80vw;
+        }
+
+        #mentalize-timer {
+            width: 200px; height: 2px;
+            background: var(--amber-dim);
+            margin: 20px auto; position: relative;
+            overflow: hidden;
+        }
+
+        #timer-bar {
+            width: 100%; height: 100%;
+            background: var(--amber);
+            transform: translateX(-100%);
         }
 
         .card-display {
@@ -118,11 +129,7 @@
         .card-desc { font-size: 0.95rem; color: #eee; line-height: 1.5; text-align: justify; }
 
         @keyframes flicker { 0% { transform: scale(1); } 100% { transform: scale(1.05); } }
-        @keyframes glitch-in {
-            0% { transform: translateX(-10px); opacity: 0; }
-            50% { transform: translateX(10px); }
-            100% { transform: translateX(0); opacity: 1; }
-        }
+        @keyframes glitch-in { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
         .ar { grid-area: ar; } .terra { grid-area: terra; }
         .fogo { grid-area: fogo; } .agua { grid-area: agua; }
@@ -157,17 +164,18 @@
         </div>
 
         <div id="status-log">AGUARDANDO CONEXÃO ELEMENTAR...</div>
-        <button id="divine-btn" onclick="startDivination()">[ SCANNER DE DESTINO ]</button>
+        <button id="divine-btn" onclick="initRitual()">[ INICIAR LEITURA ]</button>
     </div>
 
     <div id="card-modal">
-        <div id="loading-screen">
-            <p id="loading-text">CALIBRANDO FREQUÊNCIAS...</p>
-            <p id="loading-chars" style="font-size: 0.8rem; opacity: 0.5;"></p>
+        <div id="ritual-steps">
+            <p id="instruction-text">MANTENHA O FOCO NO ALTAR...</p>
+            <div id="mentalize-timer"><div id="timer-bar"></div></div>
+            <p id="sub-instruction" style="font-size: 0.7rem; opacity: 0.6; letter-spacing: 2px;">MENTALIZE SUA PERGUNTA AGORA</p>
         </div>
 
         <div class="card-display" id="card-result">
-            <small style="letter-spacing: 3px;">ARQUÉTIPO IDENTIFICADO</small>
+            <small style="letter-spacing: 3px;">RESPOSTA DO SISTEMA</small>
             <div class="card-title" id="oracle-title">...</div>
             <p class="card-desc" id="oracle-desc">...</p>
             <button onclick="closeOracle()" style="background:transparent; color:var(--amber-dim); border:none; cursor:pointer; margin-top:20px; font-family:inherit;">[ REINICIAR SISTEMA ]</button>
@@ -180,16 +188,15 @@
         const candle = document.getElementById('candle');
         const divineBtn = document.getElementById('divine-btn');
         
-        // 1. Deck e Lógica de Memória
         const deckOriginal = [
-            { t: "O MAGO", d: "Sinal forte de manifestação. Seus comandos estão sendo processados pela realidade. Domine suas ferramentas." },
-            { t: "A TORRE", d: "ALERTA: Colapso de sistema iminente. Estruturas rígidas precisam cair para que o novo código seja escrito." },
-            { t: "O EREMITA", d: "Modo Offline necessário. Busque o sinal dentro do silêncio. A resposta não está na rede externa." },
-            { t: "A ESTRELA", d: "Sincronia recuperada. Há uma luz guia nos dados. Mantenha o fluxo e a esperança." },
-            { t: "O LOUCO", d: "Risco calculado. Inicie o novo processo sem medo do erro 404. O salto é o próprio caminho." },
-            { t: "O DIABO", d: "Loop detectado. Você está preso a padrões obsoletos ou vícios de interface. Quebre o ciclo." },
-            { t: "A JUSTIÇA", d: "Equação equilibrada. Toda ação gera um log de retorno. Analise suas escolhas com lógica fria." },
-            { t: "A MORTE", d: "Finalização de processo. Um ciclo encerra para que o sistema seja otimizado. Não tema o reboot." }
+            { t: "O MAGO", d: "A resposta está em suas mãos. Use as ferramentas disponíveis para codificar sua própria realidade." },
+            { t: "A TORRE", d: "Sua pergunta aponta para algo que precisa ser demolido. Não tente consertar o que deve cair." },
+            { t: "O EREMITA", d: "Retire-se para processar os dados. A resposta não virá do barulho externo, mas do seu núcleo." },
+            { t: "A ESTRELA", d: "Otimismo detectado. O caminho está limpo. Prossiga com fé na lógica do universo." },
+            { t: "O LOUCO", d: "Sua pergunta requer um salto de fé. O risco de erro é alto, mas a recompensa é o novo." },
+            { t: "O DIABO", d: "Cuidado com a obsessão. Você está rodando em um loop de desejos que escravizam seu sistema." },
+            { t: "A MORTE", d: "O processo atual deve ser encerrado. Aceite o reboot para que a nova versão possa carregar." },
+            { t: "A LUA", d: "Sinal instável. Há interferência e ilusões. Espere a poeira de dados baixar para decidir." }
         ];
 
         let currentDeck = [...deckOriginal];
@@ -202,7 +209,6 @@
             return array;
         }
 
-        // Embaralhamento inicial
         shuffle(currentDeck);
 
         function toggleElement(el, name) {
@@ -211,46 +217,55 @@
 
             if (activeNodes.size === 4) {
                 candle.classList.add('active');
-                log.innerHTML = "CONEXÃO ESTABELECIDA.<br>SEQUÊNCIA DE DIVINAÇÃO PRONTA.";
+                log.innerHTML = "ALTAR EM EQUILÍBRIO.<br>SINAL ORACULAR DISPONÍVEL.";
                 divineBtn.style.display = "block";
             } else {
                 candle.classList.remove('active');
                 divineBtn.style.display = "none";
-                log.innerHTML = activeNodes.size === 0 ? "AGUARDANDO CONEXÃO..." : "ELEMENTOS EM SINCRONIZAÇÃO...";
+                log.innerHTML = activeNodes.size === 0 ? "AGUARDANDO CONEXÃO..." : "SINCRONIZANDO ELEMENTOS...";
             }
         }
 
-        function startDivination() {
+        function initRitual() {
             document.getElementById('card-modal').style.display = 'flex';
-            document.getElementById('loading-screen').style.display = 'block';
+            document.getElementById('ritual-steps').style.display = 'block';
             document.getElementById('card-result').style.display = 'none';
             
-            let steps = ["ANALISANDO VIBRAÇÃO...", "BUSCANDO ARQUÉTIPO...", "SINCRONIZANDO..."];
-            let i = 0;
+            const bar = document.getElementById('timer-bar');
+            const text = document.getElementById('instruction-text');
+            const sub = document.getElementById('sub-instruction');
+
+            // Etapa 1: Mentalização (5 segundos)
+            text.innerText = "MENTALIZE SUA PERGUNTA...";
+            sub.style.opacity = "1";
+            bar.style.transition = "transform 5s linear";
             
-            const interval = setInterval(() => {
-                document.getElementById('loading-text').innerText = steps[i];
-                // Efeito visual de caracteres aleatórios
-                document.getElementById('loading-chars').innerText = Math.random().toString(36).substring(2, 15).toUpperCase();
-                i++;
-                if (i >= steps.length) {
-                    clearInterval(interval);
+            setTimeout(() => {
+                bar.style.transform = "translateX(0%)";
+            }, 50);
+
+            setTimeout(() => {
+                // Etapa 2: Processamento (2 segundos)
+                text.innerText = "DECODIFICANDO RESPOSTA...";
+                sub.innerText = "PROCESSANDO ÉTER DIGITAL";
+                bar.style.transition = "none";
+                bar.style.transform = "translateX(-100%)";
+                
+                setTimeout(() => {
                     showResult();
-                }
-            }, 700);
+                }, 2000);
+
+            }, 5050);
         }
 
         function showResult() {
-            // Se o deck acabar, reabastece e embaralha
             if (currentDeck.length === 0) {
                 currentDeck = [...deckOriginal];
                 shuffle(currentDeck);
             }
 
-            // Pega a última carta da pilha (garante que não repete até o deck acabar)
             const card = currentDeck.pop();
-
-            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('ritual-steps').style.display = 'none';
             document.getElementById('card-result').style.display = 'block';
             document.getElementById('oracle-title').innerText = card.t;
             document.getElementById('oracle-desc').innerText = card.d;
@@ -258,6 +273,8 @@
 
         function closeOracle() {
             document.getElementById('card-modal').style.display = 'none';
+            // Reset do timer para a próxima
+            document.getElementById('timer-bar').style.transform = "translateX(-100%)";
         }
     </script>
 </body>
