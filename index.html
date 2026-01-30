@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OPUS MACHINA // V2</title>
+    <title>OPUS MACHINA // V2.1</title>
     <style>
         :root {
             --amber: #ffb000;
@@ -23,7 +23,7 @@
             overflow: hidden;
         }
 
-        /* Scanlines e Vinheta */
+        /* Efeito de Scanlines */
         body::before {
             content: " ";
             display: block;
@@ -53,118 +53,122 @@
             text-shadow: 0 0 10px var(--amber);
         }
 
-        /* Grid do Altar - Aumentamos o GAP para legibilidade */
+        /* Grid do Altar */
         .altar-grid {
             display: grid;
             grid-template-areas: 
                 ".      ar      ."
                 "agua   vela    terra"
                 ".      fogo    .";
-            gap: 50px; /* Espaçamento maior */
+            gap: 60px; 
             align-items: center;
             justify-items: center;
         }
 
         /* Botões Estilo Terminal Industrial */
         .node {
-            width: 120px;
-            height: 120px;
-            background: rgba(255, 176, 0, 0.05);
-            border: 2px solid var(--amber);
+            width: 130px;
+            height: 130px;
+            background: rgba(255, 176, 0, 0.03);
+            border: 1px solid var(--amber);
             color: var(--amber);
             cursor: pointer;
-            font-family: 'Courier New', Courier, monospace;
-            font-weight: bold;
-            font-size: 0.9rem;
+            font-family: inherit;
             transition: all 0.2s ease;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            box-shadow: inset 0 0 10px rgba(255, 176, 0, 0.1);
+            position: relative;
         }
 
-        .node span { font-size: 1.1rem; margin-bottom: 5px; }
-        .node small { color: var(--amber-dim); letter-spacing: 1px; }
-
         .node:hover {
-            background: rgba(255, 176, 0, 0.15);
-            box-shadow: 0 0 20px var(--amber-dim);
+            background: rgba(255, 176, 0, 0.1);
+            box-shadow: 0 0 15px var(--amber-dim);
         }
 
         .node.active {
             background: var(--amber);
-            color: black;
+            color: #000;
             box-shadow: 0 0 30px var(--amber);
+            border: 1px solid #fff;
         }
-        
-        .node.active small { color: #333; }
 
-        /* Posicionamento Elementar */
-        .ar    { grid-area: ar; }
-        .terra { grid-area: terra; }
-        .fogo  { grid-area: fogo; }
-        .agua  { grid-area: agua; }
+        .node span { font-weight: bold; font-size: 1rem; margin-top: 8px; }
+        .node small { font-size: 0.65rem; opacity: 0.7; letter-spacing: 1px; }
 
-        /* Vela Central Reconstruída */
+        /* Desenho dos Símbolos Elementares (CSS Shapes) */
+        .symbol {
+            width: 0; height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            margin-bottom: 5px;
+            position: relative;
+        }
+
+        /* Fogo: Triângulo Cima */
+        .fogo .symbol { border-bottom: 25px solid var(--amber); }
+        .fogo.active .symbol { border-bottom-color: #000; }
+
+        /* Ar: Triângulo Cima com Traço */
+        .ar .symbol { border-bottom: 25px solid var(--amber); }
+        .ar .symbol::after {
+            content: ''; position: absolute; top: 15px; left: -15px;
+            width: 30px; height: 2px; background: var(--amber);
+        }
+        .ar.active .symbol { border-bottom-color: #000; }
+        .ar.active .symbol::after { background: #000; }
+
+        /* Água: Triângulo Baixo */
+        .agua .symbol { border-top: 25px solid var(--amber); }
+        .agua.active .symbol { border-top-color: #000; }
+
+        /* Terra: Triângulo Baixo com Traço */
+        .terra .symbol { border-top: 25px solid var(--amber); }
+        .terra .symbol::after {
+            content: ''; position: absolute; top: -17px; left: -15px;
+            width: 30px; height: 2px; background: var(--amber);
+        }
+        .terra.active .symbol { border-top-color: #000; }
+        .terra.active .symbol::after { background: #000; }
+
+        /* Vela Central */
         .vela-container {
             grid-area: vela;
-            width: 100px;
-            height: 150px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            width: 100px; height: 150px;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
             position: relative;
         }
 
         .candle-base {
-            width: 35px;
-            height: 70px;
+            width: 35px; height: 70px;
             border: 2px solid var(--amber);
             background: repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(255,176,0,0.1) 5px, rgba(255,176,0,0.1) 10px);
             position: relative;
-            margin-top: 20px; /* Espaço para a chama não sobrepor */
+            margin-top: 20px;
         }
 
-        /* Pavio */
         .candle-base::before {
-            content: '';
-            position: absolute;
-            top: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 2px;
-            height: 10px;
-            background: var(--amber);
+            content: ''; position: absolute; top: -10px; left: 50%;
+            transform: translateX(-50%); width: 2px; height: 10px; background: var(--amber);
         }
 
         .flame {
-            width: 20px;
-            height: 35px;
-            background: var(--amber);
+            width: 20px; height: 35px; background: var(--amber);
             border-radius: 50% 50% 35% 35%;
-            position: absolute;
-            top: 5px; /* Ajustado para brotar do pavio */
-            filter: blur(4px);
-            opacity: 0;
-            transition: opacity 0.5s ease, transform 0.2s;
-            box-shadow: 0 0 20px var(--amber), 0 0 40px var(--amber-dim);
+            position: absolute; top: 5px;
+            filter: blur(4px); opacity: 0;
+            transition: opacity 0.5s ease;
+            box-shadow: 0 0 20px var(--amber);
         }
 
-        .active .flame {
-            opacity: 1;
-            animation: flicker 0.1s infinite alternate;
-        }
+        .active .flame { opacity: 1; animation: flicker 0.1s infinite alternate; }
 
-        /* Rodapé de Status */
         #status-log {
-            margin-top: 60px;
-            font-size: 0.8rem;
-            letter-spacing: 2px;
-            color: var(--amber-dim);
-            border: 1px dashed var(--amber-dim);
-            padding: 10px 20px;
+            margin-top: 60px; font-size: 0.8rem; letter-spacing: 2px;
+            color: var(--amber-dim); border: 1px dashed var(--amber-dim);
+            padding: 10px 20px; min-width: 300px; text-align: center;
         }
 
         @keyframes flicker {
@@ -172,24 +176,28 @@
             100% { transform: scale(1.1) rotate(1deg); opacity: 1; }
         }
 
+        /* Posicionamento Grid */
+        .ar { grid-area: ar; } .terra { grid-area: terra; }
+        .fogo { grid-area: fogo; } .agua { grid-area: agua; }
+
     </style>
 </head>
 <body>
 
     <div id="ui-wrapper">
-        <header>
-            ::: OPUS MACHINA INTERFACE :::
-        </header>
+        <header>:: OPUS MACHINA ::</header>
 
         <div class="altar-grid">
             <button class="node ar" onclick="toggleElement(this, 'AR')">
-                <span>[ AR ]</span>
-                <small>ASCENSÃO</small>
+                <div class="symbol"></div>
+                <span>AR</span>
+                <small>INTELECTO</small>
             </button>
 
             <button class="node agua" onclick="toggleElement(this, 'AGUA')">
-                <span>[ ÁGUA ]</span>
-                <small>FLUXO</small>
+                <div class="symbol"></div>
+                <span>ÁGUA</span>
+                <small>EMOÇÃO</small>
             </button>
 
             <div class="vela-container" id="candle">
@@ -198,13 +206,15 @@
             </div>
 
             <button class="node terra" onclick="toggleElement(this, 'TERRA')">
-                <span>[ TERRA ]</span>
-                <small>INÉRCIA</small>
+                <div class="symbol"></div>
+                <span>TERRA</span>
+                <small>MATÉRIA</small>
             </button>
 
             <button class="node fogo" onclick="toggleElement(this, 'FOGO')">
-                <span>[ FOGO ]</span>
-                <small>CAOS</small>
+                <div class="symbol"></div>
+                <span>FOGO</span>
+                <small>ENERGIA</small>
             </button>
         </div>
 
@@ -218,28 +228,19 @@
 
         function toggleElement(el, name) {
             el.classList.toggle('active');
-            
-            if (activeNodes.has(name)) {
-                activeNodes.delete(name);
-            } else {
-                activeNodes.add(name);
-            }
+            if (activeNodes.has(name)) activeNodes.delete(name);
+            else activeNodes.add(name);
 
-            // Atualização do Log
-            if (activeNodes.size === 0) {
-                log.innerText = "AGUARDANDO SEQUÊNCIA DE ATIVAÇÃO...";
-                log.style.borderColor = "var(--amber-dim)";
-            } else if (activeNodes.size < 4) {
-                log.innerText = `SISTEMA PARCIAL: ${Array.from(activeNodes).join(" + ")}`;
-            } else {
+            if (activeNodes.size === 4) {
                 candle.classList.add('active');
-                log.innerText = "PROTOCOLO OPUS MACHINA: ONLINE";
+                log.innerText = "ALTAER ATIVO // CONEXÃO ESTABELECIDA";
                 log.style.color = "var(--amber)";
                 log.style.borderColor = "var(--amber)";
-            }
-
-            if (activeNodes.size < 4) {
+            } else {
                 candle.classList.remove('active');
+                log.innerText = activeNodes.size > 0 ? `CARREGANDO... [${Array.from(activeNodes).join(" + ")}]` : "AGUARDANDO SEQUÊNCIA...";
+                log.style.color = "var(--amber-dim)";
+                log.style.borderColor = "var(--amber-dim)";
             }
         }
     </script>
