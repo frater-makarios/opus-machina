@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OPUS MACHINA // ORACLE V5.1</title>
+    <title>OPUS MACHINA // ORACLE V5.2</title>
     <style>
         :root {
             --amber: #ffb000;
@@ -56,6 +56,7 @@
             background: rgba(20, 15, 0, 0.9); border: 1.5px solid var(--amber);
             color: var(--amber); cursor: pointer;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: all 0.3s ease;
         }
 
         .node.active { background: var(--amber); color: #000; box-shadow: 0 0 20px var(--amber); }
@@ -67,6 +68,9 @@
         .agua .symbol { border-top: 18px solid var(--amber); }
         .terra .symbol { border-top: 18px solid var(--amber); position: relative; }
         .terra .symbol::after { content:''; position:absolute; top:-12px; left:-10px; width:20px; height:2px; background:var(--amber); }
+
+        .node.active .symbol, .node.active .symbol::after { border-color: transparent transparent #000 transparent; background: #000; }
+        .node.active.agua .symbol, .node.active.terra .symbol { border-color: #000 transparent transparent transparent; }
 
         .vela-container { grid-area: vela; display: flex; flex-direction: column; align-items: center; }
         .candle-base { width: 20px; height: 45px; border: 2px solid var(--amber); position: relative; }
@@ -82,6 +86,7 @@
             border: 1px solid var(--amber-dim); padding: 12px;
             width: 90vw; max-width: 400px; text-align: center;
             background: rgba(20, 10, 0, 0.8); min-height: 60px;
+            line-height: 1.4;
         }
 
         #divine-btn {
@@ -90,9 +95,9 @@
             border: 1px solid var(--amber); padding: 12px 24px;
             font-family: inherit; font-weight: bold;
             cursor: pointer; letter-spacing: 2px;
+            animation: pulse 2s infinite;
         }
 
-        /* MODAL E INTERFACE DE DIVINAÇÃO */
         #card-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.98); z-index: 200;
@@ -100,23 +105,9 @@
             padding: 20px; text-align: center;
         }
 
-        #ritual-steps {
-            color: var(--amber); font-size: 1rem;
-            max-width: 80vw;
-        }
-
-        #mentalize-timer {
-            width: 250px; height: 1px;
-            background: var(--amber-dim);
-            margin: 30px auto; position: relative;
-            overflow: hidden;
-        }
-
-        #timer-bar {
-            width: 100%; height: 100%;
-            background: var(--amber-bright);
-            transform: translateX(-100%);
-        }
+        #ritual-steps { color: var(--amber); font-size: 1rem; max-width: 80vw; }
+        #mentalize-timer { width: 250px; height: 1px; background: var(--amber-dim); margin: 30px auto; position: relative; overflow: hidden; }
+        #timer-bar { width: 100%; height: 100%; background: var(--amber-bright); transform: translateX(-100%); }
 
         .card-display {
             display: none; border: 2px solid var(--amber); padding: 30px;
@@ -130,6 +121,7 @@
 
         @keyframes flicker { 0% { transform: scale(1); } 100% { transform: scale(1.05); } }
         @keyframes glitch-in { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
 
         .ar { grid-area: ar; } .terra { grid-area: terra; }
         .fogo { grid-area: fogo; } .agua { grid-area: agua; }
@@ -187,6 +179,14 @@
         const log = document.getElementById('status-log');
         const candle = document.getElementById('candle');
         const divineBtn = document.getElementById('divine-btn');
+
+        // Novas instruções para cada elemento
+        const elementGuide = {
+            'AR': "MENTALIZE: Clareza mental e a remoção de toda confusão. Sinta o pensamento fluir.",
+            'AGUA': "MENTALIZE: Equilíbrio emocional. Deixe que sua intuição guie o fluxo de dados.",
+            'TERRA': "MENTALIZE: Estabilidade e a manifestação da sua vontade no plano físico.",
+            'FOGO': "MENTALIZE: Ação e coragem. Sinta a energia transmutando os obstáculos em luz."
+        };
         
         const deckOriginal = [
             { t: "O MAGO", d: "A resposta está em suas mãos. Use as ferramentas disponíveis para codificar sua própria realidade." },
@@ -222,7 +222,15 @@
             } else {
                 candle.classList.remove('active');
                 divineBtn.style.display = "none";
-                log.innerHTML = activeNodes.size === 0 ? "AGUARDANDO CONEXÃO..." : "CALIBRANDO ELEMENTOS...";
+                
+                if (activeNodes.has(name)) {
+                    // Exibe a instrução específica do elemento ativado
+                    log.innerHTML = `<span style="color:var(--amber-bright)">[ ${name} ATIVADO ]</span><br>${elementGuide[name]}`;
+                } else if (activeNodes.size === 0) {
+                    log.innerHTML = "AGUARDANDO CONEXÃO ELEMENTAR...";
+                } else {
+                    log.innerHTML = "SINCRONIZANDO FLUXO... ATIVE OS RESTANTES.";
+                }
             }
         }
 
@@ -235,11 +243,9 @@
             const text = document.getElementById('instruction-text');
             const sub = document.getElementById('sub-instruction');
 
-            // Reset da barra
             bar.style.transition = "none";
             bar.style.transform = "translateX(-100%)";
 
-            // Etapa 1: Mentalização (10 segundos)
             setTimeout(() => {
                 text.innerText = "RESPIRE E MENTALIZE SUA PERGUNTA...";
                 bar.style.transition = "transform 10s linear";
@@ -247,7 +253,6 @@
             }, 100);
 
             setTimeout(() => {
-                // Etapa 2: Processamento (2.5 segundos)
                 text.innerText = "SINAL RECEBIDO. DECODIFICANDO...";
                 sub.innerText = "EXTRAINDO ARQUÉTIPO DA REDE";
                 bar.style.transition = "opacity 0.5s";
@@ -257,7 +262,7 @@
                     showResult();
                 }, 2500);
 
-            }, 10100); // 10 segundos + delay inicial
+            }, 10100);
         }
 
         function showResult() {
@@ -271,8 +276,6 @@
             document.getElementById('card-result').style.display = 'block';
             document.getElementById('oracle-title').innerText = card.t;
             document.getElementById('oracle-desc').innerText = card.d;
-            
-            // Reset de opacidade da barra para a próxima vez
             document.getElementById('timer-bar').style.opacity = "1";
         }
 
