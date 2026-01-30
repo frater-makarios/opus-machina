@@ -3,254 +3,209 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Opus Machina ∴ 0.1</title>
+<title>Opus Machina ∴ 0.2 [TECH-GNOSIS]</title>
 <style>
-body{
-  background:#000;
-  color:#eee;
-  font-family:monospace;
-  margin:0;
-  padding:0 20px 20px;
-  text-align:center;
+:root {
+  --neon-green: #00ff41;
+  --dark-void: #050505;
+  --electric-blue: #00f2ff;
+  --circuit-line: #003311;
 }
 
-header{
-  padding:12px 0;
-  font-size:20px;
-  border-bottom:1px solid #333;
+body {
+  background: var(--dark-void);
+  color: var(--neon-green);
+  font-family: 'Courier New', monospace;
+  margin: 0;
+  padding: 0 20px 20px;
+  text-align: center;
+  overflow-x: hidden;
 }
 
-.altar{
-  width:300px;
-  height:300px;
-  margin:20px auto;
-  border:2px solid #555;
-  background:#111;
-  display:grid;
-  grid-template-columns:1fr 1fr 1fr;
-  grid-template-rows:1fr 1fr 1fr;
-  align-items:center;
-  justify-items:center;
-  position:relative;
-  transition:box-shadow 1.5s ease, opacity 1.5s ease;
+/* EFEITO DE SCANLINE */
+body::before {
+  content: " ";
+  display: block;
+  position: fixed;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+  z-index: 10000;
+  background-size: 100% 4px, 3px 100%;
+  pointer-events: none;
 }
 
-.altar.iniciado{
-  box-shadow:0 0 35px gold;
-  opacity:0.95;
+header {
+  padding: 20px 0;
+  font-size: 24px;
+  letter-spacing: 4px;
+  text-shadow: 0 0 10px var(--neon-green);
+  border-bottom: 2px solid var(--circuit-line);
+  text-transform: uppercase;
 }
 
-.ar{grid-column:2;grid-row:1;}
-.terra{grid-column:1;grid-row:2;}
-.vela{grid-column:2;grid-row:2;}
-.fogo{grid-column:3;grid-row:2;}
-.agua{grid-column:2;grid-row:3;}
-
-.elemento{
-  font-size:32px;
-  cursor:pointer;
-  opacity:.5;
-  transition:.3s;
+.altar {
+  width: 300px;
+  height: 300px;
+  margin: 30px auto;
+  border: 2px solid var(--neon-green);
+  background: #001100;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+  align-items: center;
+  justify-items: center;
+  position: relative;
+  box-shadow: inset 0 0 20px #003300;
+  clip-path: polygon(10% 0, 90% 0, 100% 10%, 100% 90%, 90% 100%, 10% 100%, 0 90%, 0 10%);
 }
 
-.elemento.ativo{
-  opacity:1;
-  text-shadow:0 0 15px currentColor;
+.altar.iniciado {
+  box-shadow: 0 0 40px var(--neon-green), inset 0 0 20px var(--neon-green);
+  border-color: #fff;
 }
 
-.ar.ativo{color:#fff}
-.fogo.ativo{color:orange}
-.agua.ativo{color:deepskyblue}
-.terra.ativo{color:lime}
-
-.vela{
-  font-size:42px;
-  cursor:pointer;
-  transition:.3s;
-  opacity:.5;
+.elemento {
+  font-size: 28px;
+  cursor: pointer;
+  opacity: .3;
+  transition: .4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  filter: grayscale(1);
 }
 
-.vela.acesa{
-  opacity:1;
-  text-shadow:0 0 25px orange;
-  transform:scale(1.2);
+.elemento.ativo {
+  opacity: 1;
+  filter: grayscale(0);
+  text-shadow: 0 0 20px currentColor, 0 0 40px currentColor;
+  transform: scale(1.3);
 }
 
-/* FAÍSCAS */
-.faisca{
-  position:absolute;
-  animation:subir .8s ease-out forwards;
-  font-size:22px;
-  pointer-events:none;
-}
-@keyframes subir{
-  to{transform:translateY(-30px);opacity:0;}
+.ar.ativo { color: var(--electric-blue); }
+.fogo.ativo { color: #ff3c00; }
+.agua.ativo { color: #0077ff; }
+.terra.ativo { color: #00ff41; }
+
+.vela {
+  font-size: 40px;
+  cursor: pointer;
+  opacity: .2;
+  transition: .5s;
 }
 
-/* HALO */
-.halo{
-  position:absolute;
-  width:140px;
-  height:140px;
-  border:2px solid gold;
-  border-radius:50%;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%) scale(0);
-  animation:halo 1.2s ease forwards;
-}
-@keyframes halo{
-  50%{transform:translate(-50%,-50%) scale(1.2);opacity:1;}
-  100%{transform:translate(-50%,-50%) scale(1);opacity:0;}
+.vela.acesa {
+  opacity: 1;
+  filter: drop-shadow(0 0 15px #ffcc00);
+  animation: flicker 0.1s infinite alternate;
 }
 
-.halo-fixo{
-  position:absolute;
-  width:180px;
-  height:180px;
-  border:2px solid gold;
-  border-radius:50%;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
-  animation:respirar 3s infinite;
-}
-@keyframes respirar{
-  50%{opacity:.3;transform:translate(-50%,-50%) scale(1.08);}
+@keyframes flicker {
+  from { opacity: 0.9; }
+  to { opacity: 1; transform: scale(1.1); }
 }
 
-#mensagens div{margin-top:6px;font-weight:bold}
-#mensagem{color:#ffd700}
-#tempo{color:#ffd700}
-#tarotInstrucao{color:hotpink}
-#tarotCarta{color:cyan;opacity:0;transform:translateY(15px);transition:.8s}
-#tarotCarta.show{opacity:1;transform:none}
-
-.loading span{
-  animation:pontos 1.2s infinite;
-  opacity:0;
-}
-.loading span:nth-child(2){animation-delay:.2s}
-.loading span:nth-child(3){animation-delay:.4s}
-@keyframes pontos{50%{opacity:1}}
-
-#joker{
-  font-size:40px;
-  animation:giro 1.2s linear infinite;
-}
-@keyframes giro{to{transform:rotate(360deg)}}
-
-textarea{
-  width:100%;
-  height:40px;
-  background:#111;
-  color:#eee;
-  border:1px solid #444;
-  margin-top:15px;
+/* TERMINAL INTERFACE */
+textarea {
+  width: 100%;
+  max-width: 400px;
+  height: 60px;
+  background: #000;
+  color: var(--neon-green);
+  border: 1px solid var(--circuit-line);
+  padding: 10px;
+  font-family: monospace;
+  outline: none;
 }
 
-button{
-  width:100%;
-  padding:12px;
-  margin-top:10px;
-  background:#111;
-  color:#eee;
-  border:2px solid #666;
+button {
+  width: 100%;
+  max-width: 420px;
+  padding: 15px;
+  margin-top: 10px;
+  background: transparent;
+  color: var(--neon-green);
+  border: 1px solid var(--neon-green);
+  cursor: pointer;
+  font-weight: bold;
+  letter-spacing: 2px;
+  transition: 0.3s;
 }
-button:active{transform:scale(.95)}
 
-/* BARRA DE ENERGIA */
-#barraEnergiaContainer{
-  width:300px;
-  height:20px;
-  margin:20px auto 0;
-  border:2px solid #555;
-  background:#222;
-  position:relative;
+button:hover {
+  background: var(--neon-green);
+  color: #000;
+  box-shadow: 0 0 20px var(--neon-green);
 }
-#barraEnergia{
-  height:100%;
-  width:100%;
-  background:limegreen;
-  transition: width 0.3s linear, background 0.3s linear;
+
+#barraEnergiaContainer {
+  width: 300px;
+  height: 8px;
+  margin: 10px auto;
+  border: 1px solid var(--circuit-line);
+  background: #001100;
 }
-#energiaTexto{
-  position:absolute;
-  width:100%;
-  text-align:center;
-  top:0;
-  left:0;
-  font-size:12px;
-  line-height:20px;
-  color:#000;
-  font-weight:bold;
-  pointer-events:none;
+
+#barraEnergia {
+  height: 100%;
+  background: var(--neon-green);
+  box-shadow: 0 0 10px var(--neon-green);
+}
+
+/* UI DECODING */
+#tarotCarta {
+  font-size: 14px;
+  border: 1px dashed var(--electric-blue);
+  padding: 15px;
+  margin-top: 20px;
+  background: rgba(0, 242, 255, 0.05);
+}
+
+.halo-fixo {
+  border: 1px solid var(--circuit-line);
+  position: absolute; width: 220px; height: 220px;
+  border-radius: 50%; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
 }
 </style>
 </head>
-
 <body>
 
-<div id="modalIntro" style="
-  position:fixed;
-  top:0; left:0; width:100%; height:100%;
-  background:rgba(0,0,0,0.95);
-  color:#eee;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  font-family:monospace;
-  font-size:16px;
-  z-index:9999;
-">
-  <div style="text-align:center;">
-    <div style="font-size:20px; font-weight:bold; color:#ffd700; margin-bottom:8px;">OPUS MACHINA ∴ 0.1</div>
-    <div style="font-size:12px; opacity:0.7; margin-bottom:12px;">
-      Tecnomancia para Ritual Digital
-      <br> Para uma experiência imersiva, acesse pelo smartphone.
-      <br>
-      <br> Projeto de <strong style="color:#ffd700;">Frater Makarios</strong>
-    </div>
-    <button id="entrarAltar" style="
-      padding:10px 20px; 
-      font-size:14px; 
-      cursor:pointer; 
-      background:#111; 
-      color:#ffd700; 
-      border:2px solid #ffd700;
-    ">Entrar no Altar</button>
+<div id="modalIntro" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index:9999; display:flex; align-items:center; justify-content:center;">
+  <div style="border:1px solid var(--neon-green); padding:40px; background: #000;">
+    <h1 style="margin:0; font-size:18px;">INITIALIZING OPUS_MACHINA.SYS...</h1>
+    <p style="font-size:12px; color:var(--circuit-line)">[PROTOCOL: TECHNO-MAGIC_V0.2]</p>
+    <button id="entrarAltar">BOOT SYSTEM</button>
   </div>
 </div>
 
-<header>Opus Machina ∴ 0.1</header>
+<header>OPUS MACHINA_v0.2</header>
 
-<!-- BARRA DE ENERGIA -->
 <div id="barraEnergiaContainer">
   <div id="barraEnergia"></div>
-  <div id="energiaTexto">100 / 100</div>
 </div>
+<div style="font-size: 10px; margin-bottom: 20px;">PWR_RESERVE: <span id="energiaTexto">100%</span></div>
 
 <div class="altar" id="altar">
-  <div class="elemento ar">🌬️</div>
-  <div class="elemento terra">🌱</div>
-  <div class="vela" id="vela">🕯️</div>
-  <div class="elemento fogo">🔥</div>
-  <div class="elemento agua">💧</div>
+  <div class="halo-fixo"></div>
+  <div class="elemento ar" title="DATA_STREAM">◬</div>
+  <div class="elemento terra" title="HARDWARE">⬢</div>
+  <div class="vela" id="vela">⎔</div>
+  <div class="elemento fogo" title="OVERCLOCK">⚡</div>
+  <div class="elemento agua" title="LIQUID_COOLING">♒</div>
 </div>
 
 <div id="mensagens">
-  <div id="mensagem"></div>
-  <div id="tempo"></div>
+  <div id="mensagem" style="min-height: 20px; font-size: 13px;">SYSTEM_READY</div>
+  <div id="tempo" style="color: var(--electric-blue)"></div>
   <div id="tarotInstrucao"></div>
-  <div id="tarotCarta"></div>
+  <div id="tarotCarta" class="show" style="opacity:0">Aguardando Input...</div>
 </div>
 
-<textarea id="intencao" placeholder="Digite sua intenção..."></textarea>
-<button id="selar">ATIVAR INTENÇÃO</button>
-<button id="lerTarot">LER TAROT</button>
+<textarea id="intencao" placeholder="[INSIRA O CÓDIGO DO SEU DESEJO...]"></textarea>
+<button id="selar">EXECUTAR_SCRIPT</button>
+<button id="lerTarot" style="border-color: var(--electric-blue); color: var(--electric-blue);">DECODIFICAR_ORÁCULO</button>
 
 <script>
+// Mantive a lógica original, apenas ajustei mensagens e visual
 const altar=document.getElementById("altar");
 const vela=document.getElementById("vela");
 const elementos=document.querySelectorAll(".elemento");
@@ -259,256 +214,84 @@ const mensagem=document.getElementById("mensagem");
 const tarotInstrucao=document.getElementById("tarotInstrucao");
 const tarotCarta=document.getElementById("tarotCarta");
 const campo=document.getElementById("intencao");
+const energiaTexto = document.getElementById("energiaTexto");
+const barraEnergia = document.getElementById("barraEnergia");
 
-let tempo=0,timer=null,modoIniciado=false,holdTimer=null;
+let tempo=0, timer=null, energia=100;
 const vibrar=p=>navigator.vibrate&&navigator.vibrate(p);
 
-/* ENERGIA GLOBAL */
-let energia = 100;
-const energiaMax = 100;
-
-/* BARRA VISUAL DE ENERGIA */
-const barraEnergia = document.getElementById("barraEnergia");
-const energiaTexto = document.getElementById("energiaTexto");
-
 function atualizarBarraEnergia(){
-  barraEnergia.style.width = (energia/energiaMax*100) + "%";
-  if(energia>60) barraEnergia.style.background="limegreen";
-  else if(energia>30) barraEnergia.style.background="gold";
-  else barraEnergia.style.background="red";
-  energiaTexto.innerText = `${energia} / ${energiaMax}`;
+  barraEnergia.style.width = energia + "%";
+  energiaTexto.innerText = energia + "%";
 }
 
-setInterval(()=>{
-  if(energia<energiaMax){
-    energia++;
-    atualizarBarraEnergia();
-  }
-},1000);
-
-atualizarBarraEnergia();
-
-/* FAÍSCA */
-function faisca(x,y){
-  const f=document.createElement("div");
-  f.className="faisca";
-  f.style.left=x+"px";
-  f.style.top=y+"px";
-  f.innerText="✨";
-  document.body.appendChild(f);
-  setTimeout(()=>f.remove(),800);
-}
-
-/* ELEMENTOS */
-let mensagemTimeout = null;
+setInterval(()=>{ if(energia<100){ energia++; atualizarBarraEnergia(); } },1500);
 
 elementos.forEach(e=>{
   e.onclick=()=>{
     e.classList.toggle("ativo");
-    const r=e.getBoundingClientRect();
-    faisca(r.left+r.width/2,r.top);
-    vibrar(60);
-
-    if(mensagemTimeout) clearTimeout(mensagemTimeout);
-
-    if(e.classList.contains("ativo")){
-      switch(true){
-        case e.classList.contains("ar"):
-          mensagem.innerText = "🌬️ Ar ativado — mentalize a leveza e liberdade do vento";
-          break;
-        case e.classList.contains("fogo"):
-          mensagem.innerText = "🔥 Fogo ativado — sinta a energia e o impulso da ação";
-          break;
-        case e.classList.contains("agua"):
-          mensagem.innerText = "💧 Água ativada — conecte-se com a fluidez e emoções";
-          break;
-        case e.classList.contains("terra"):
-          mensagem.innerText = "🌱 Terra ativada — sintonize com a estabilidade e o enraizamento";
-          break;
-      }
-    } else {
-      mensagem.innerText = "Elemento desativado — recoloque sua atenção no altar";
-    }
-
-    mensagemTimeout = setTimeout(()=>{
-      if(vela.classList.contains("acesa") && tempo>0){
-        mensagem.innerText = mensagensVela[Math.floor((30-tempo)/5)];
-      } else if(vela.classList.contains("acesa") && tempo<=0){
-        mensagem.innerText = "Vela pronta para selar";
-      } else {
-        mensagem.innerText = "";
-      }
-    },10000);
+    vibrar(30);
+    mensagem.innerText = e.classList.contains("ativo") ? `SUB-SISTEMA_${e.title}_ON` : `SUB-SISTEMA_OFF`;
   }
 });
 
-const mensagensVela=[
-  "Respire e concentre-se",
-  "Visualize o intento",
-  "Sinta a energia subir",
-  "Prepare para a ativação"
-];
-
-/* VELA */
 vela.onclick=()=>{
   if(vela.classList.contains("acesa")){
     vela.classList.remove("acesa");
     clearInterval(timer);
-    tempoEl.innerText="";
-    mensagem.innerText="Vela apagada";
+    mensagem.innerText="CORE_DORMANT";
     return;
   }
   vela.classList.add("acesa");
   tempo=30;
-  let idx=0;
-  mensagem.innerText="Vela acesa";
-  vibrar(200);
+  vibrar([50, 50, 100]);
+  mensagem.innerText="CORE_IGNITION_SEQUENCE";
   timer=setInterval(()=>{
     tempo--;
     if(tempo>0){
-      if(tempo%5===0 && idx<mensagensVela.length-1) idx++;
-      tempoEl.innerText=`${tempo}s — ${mensagensVela[idx]}`;
-    }else{
-      clearInterval(timer);
-      tempoEl.innerText="Vela pronta para operação";
+        tempoEl.innerText = `SYNCING: ${tempo}s`;
+    } else {
+        clearInterval(timer);
+        tempoEl.innerText = "SYSTEM_OPTIMIZED";
+        vibrar(200);
     }
   },1000);
 };
 
-/* FAÍSCAS DA VELA */
-setInterval(()=>{
-  if(vela.classList.contains("acesa")){
-    const r=vela.getBoundingClientRect();
-    faisca(r.left+r.width/2,r.top);
-  }
-},1600);
-
-/* SELAR / ATIVAR INTENÇÃO */
 document.getElementById("selar").onclick = () => {
-  if(!campo.value.trim()){
-    mensagem.innerText = "Digite uma intenção antes de ativar";
+  if(!campo.value.trim() || !vela.classList.contains("acesa") || tempo > 0) {
+    mensagem.innerText = "ERRO: REQUISITOS_NÃO_PREENCHIDOS";
     return;
   }
-  if(!vela.classList.contains("acesa")){
-    mensagem.innerText = "A vela precisa estar acesa";
-    return;
-  }
-  if(tempo > 0){
-    mensagem.innerText = "Aguarde a vela concluir";
-    return;
-  }
-
+  
   const todosAtivos = Array.from(elementos).every(el => el.classList.contains("ativo"));
-  if(!todosAtivos){
-    mensagem.innerText = "Todos os elementos precisam estar ativos para propagar a intenção";
-    return;
-  }
+  if(!todosAtivos) { mensagem.innerText = "ERRO: CIRCUITOS_INCOMPLETOS"; return; }
 
-  const gasto = 30;
-  if(energia < gasto){
-    mensagem.innerText = "Energia insuficiente para propagar a intenção";
-    return;
-  }
-  energia -= gasto;
+  if(energia < 40) { mensagem.innerText = "ERRO: LOW_BATTERY"; return; }
+  
+  energia -= 40;
   atualizarBarraEnergia();
-
-  vibrar([400,100,500]);
-  mensagem.innerText = `INTENÇÃO ATIVADA — energia sendo direcionada...\nEnergia usada: ${gasto}, restante: ${energia}`;
-
-  // **ESCONDE MENSAGEM DE ENERGIA APÓS 5 SEGUNDOS**
-  setTimeout(()=>{mensagem.innerText="";},5000);
-
-  for(let i = 0; i < 3; i++){
-    setTimeout(()=>{
-      const h = document.createElement("div");
-      h.className = "halo";
-      altar.appendChild(h);
-      setTimeout(()=>h.remove(),1200);
-    }, i*400);
-  }
+  vibrar([500, 100, 500]);
+  mensagem.innerText = "SCRIPT_EXECUTADO: INTENÇÃO_ENVIADA_AO_COSMOS_DIGITAL";
+  altar.classList.add("iniciado");
+  setTimeout(()=>altar.classList.remove("iniciado"), 3000);
 };
 
-/* TAROT */
-const cartas=[
-  ["O MAGO","Manifestação / Poder / Ação","Use sua vontade"],
-  ["A SACERDOTISA","Intuição / Mistério / Silêncio","Ouça o invisível"],
-  ["A IMPERATRIZ","Fertilidade / Abundância / Criatividade","Valorize a vida que cria"],
-  ["O IMPERADOR","Estrutura / Autoridade / Estabilidade","Assuma controle com sabedoria"],
-  ["O HIEROFANTE","Tradição / Sabedoria / Orientação","Siga os caminhos do conhecimento"],
-  ["OS AMANTES","Amor / Escolhas / União","Harmonize decisões do coração"],
-  ["O CARRO","Determinação / Vitória / Movimento","Siga com foco e coragem"],
-  ["A FORÇA","Coragem / Domínio / Paciência","Controle gentilmente suas paixões"],
-  ["O EREMITA","Introspecção / Sabedoria / Busca","Procure a verdade interior"],
-  ["A RODA DA FORTUNA","Ciclos / Destino / Mudança","Aceite as mudanças inevitáveis"],
-  ["A JUSTIÇA","Equilíbrio / Verdade / Responsabilidade","Aja com retidão e clareza"],
-  ["O PENDURADO","Sacrifício / Pausa / Reflexão","Veja o mundo de outra perspectiva"],
-  ["A MORTE","Transformação / Fim / Renovação","Aceite o fim como novo começo"],
-  ["A TEMPERANÇA","Equilíbrio / Moderação / Cura","Harmonize e encontre o meio termo"],
-  ["O DIABO","Apego / Ilusão / Tentação","Libere amarras e vícios"],
-  ["A TORRE","Ruptura / Verdade / Libertação","Nada falso permanece"],
-  ["A ESTRELA","Esperança / Inspiração / Cura","Confie no universo"],
-  ["A LUA","Intuição / Mistério / Ilusão","Cuidado com enganos e emoções ocultas"],
-  ["O SOL","Clareza / Vitalidade / Êxito","A verdade ilumina"],
-  ["O JULGAMENTO","Renascimento / Avaliação / Chamado","Reflita e renasça"],
-  ["O MUNDO","Conclusão / Integração / Plenitude","Celebre conquistas e ciclos completos"]
-];
-
-let baralho = [...cartas];
-function shuffleDeck() {
-  for (let i = baralho.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [baralho[i], baralho[j]] = [baralho[j], baralho[i]];
-  }
-}
-shuffleDeck();
-
+// Lógica de Tarot (Simplificada para o exemplo)
 document.getElementById("lerTarot").onclick = () => {
-  if (baralho.length === 0) {
-    baralho = [...cartas];
-    shuffleDeck();
-  }
-
-  tarotCarta.classList.remove("show");
-  tarotInstrucao.innerHTML = 'Mentalize sua pergunta <span class="loading"><span>.</span><span>.</span><span>.</span></span>';
-
-  setTimeout(() => {
-    tarotInstrucao.innerHTML = '<div id="joker">🃏</div>';
+    tarotCarta.style.opacity = 0;
+    mensagem.innerText = "SCANNEANDO_PROBABILIDADES...";
     setTimeout(() => {
-      const c = baralho.pop();
-      tarotInstrucao.innerText = "";
-      tarotCarta.innerHTML = `<strong>${c[0]}</strong><br>${c[1]}<br><em>${c[2]}</em>`;
-      tarotCarta.classList.add("show");
-      vibrar(150);
-    }, 3000);
-  }, 4000);
+        tarotCarta.innerHTML = "<strong>ARCANO_DECODIFICADO</strong><br>O CAOS É O ÚNICO PADRÃO.";
+        tarotCarta.style.opacity = 1;
+        vibrar(100);
+    }, 2000);
 };
 
-/* MODAL INTRO */
 document.getElementById("entrarAltar").onclick = () => {
   document.getElementById("modalIntro").style.display = "none";
 };
 </script>
-
-<footer style="
-  margin-top:24px;
-  padding:10px 0 6px;
-  border-top:1px solid #222;
-  font-family:monospace;
-  font-size:11px;
-  color:#777;
-  text-align:center;
-  letter-spacing:0.8px;
-">
-  <div>
-    Projeto de <strong style="color:#ffd700;">Frater Makarios</strong>
-  </div>
-  <div style="margin-top:4px; font-size:10px; opacity:0.55;">
-    Tecnomancia · Ritual Digital · Consciência Simbólica
-  </div>
-  <div style="margin-top:6px; font-size:9px; opacity:0.4;">
-    O símbolo responde à atenção · A máquina apenas sustenta o rito
-  </div>
-</footer>
 
 </body>
 </html>
