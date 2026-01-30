@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OPUS MACHINA // V2.1</title>
+    <title>OPUS MACHINA // V2.2</title>
     <style>
         :root {
             --amber: #ffb000;
@@ -49,23 +49,21 @@
             letter-spacing: 5px;
             border-bottom: 2px solid var(--amber);
             padding-bottom: 10px;
-            margin-bottom: 60px;
+            margin-bottom: 50px;
             text-shadow: 0 0 10px var(--amber);
         }
 
-        /* Grid do Altar */
         .altar-grid {
             display: grid;
             grid-template-areas: 
                 ".      ar      ."
                 "agua   vela    terra"
                 ".      fogo    .";
-            gap: 60px; 
+            gap: 50px; 
             align-items: center;
             justify-items: center;
         }
 
-        /* Botões Estilo Terminal Industrial */
         .node {
             width: 130px;
             height: 130px;
@@ -97,7 +95,7 @@
         .node span { font-weight: bold; font-size: 1rem; margin-top: 8px; }
         .node small { font-size: 0.65rem; opacity: 0.7; letter-spacing: 1px; }
 
-        /* Desenho dos Símbolos Elementares (CSS Shapes) */
+        /* Símbolos CSS */
         .symbol {
             width: 0; height: 0;
             border-left: 15px solid transparent;
@@ -105,34 +103,26 @@
             margin-bottom: 5px;
             position: relative;
         }
-
-        /* Fogo: Triângulo Cima */
         .fogo .symbol { border-bottom: 25px solid var(--amber); }
         .fogo.active .symbol { border-bottom-color: #000; }
-
-        /* Ar: Triângulo Cima com Traço */
         .ar .symbol { border-bottom: 25px solid var(--amber); }
         .ar .symbol::after {
             content: ''; position: absolute; top: 15px; left: -15px;
             width: 30px; height: 2px; background: var(--amber);
         }
-        .ar.active .symbol { border-bottom-color: #000; }
         .ar.active .symbol::after { background: #000; }
-
-        /* Água: Triângulo Baixo */
+        .ar.active .symbol { border-bottom-color: #000; }
         .agua .symbol { border-top: 25px solid var(--amber); }
         .agua.active .symbol { border-top-color: #000; }
-
-        /* Terra: Triângulo Baixo com Traço */
         .terra .symbol { border-top: 25px solid var(--amber); }
         .terra .symbol::after {
             content: ''; position: absolute; top: -17px; left: -15px;
             width: 30px; height: 2px; background: var(--amber);
         }
-        .terra.active .symbol { border-top-color: #000; }
         .terra.active .symbol::after { background: #000; }
+        .terra.active .symbol { border-top-color: #000; }
 
-        /* Vela Central */
+        /* Vela */
         .vela-container {
             grid-area: vela;
             width: 100px; height: 150px;
@@ -144,7 +134,7 @@
         .candle-base {
             width: 35px; height: 70px;
             border: 2px solid var(--amber);
-            background: repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(255,176,0,0.1) 5px, rgba(255,176,0,0.1) 10px);
+            background: rgba(255,176,0,0.05);
             position: relative;
             margin-top: 20px;
         }
@@ -159,16 +149,25 @@
             border-radius: 50% 50% 35% 35%;
             position: absolute; top: 5px;
             filter: blur(4px); opacity: 0;
-            transition: opacity 0.5s ease;
+            transition: opacity 0.8s ease;
             box-shadow: 0 0 20px var(--amber);
         }
 
         .active .flame { opacity: 1; animation: flicker 0.1s infinite alternate; }
 
+        /* Status Log Animado */
         #status-log {
-            margin-top: 60px; font-size: 0.8rem; letter-spacing: 2px;
-            color: var(--amber-dim); border: 1px dashed var(--amber-dim);
-            padding: 10px 20px; min-width: 300px; text-align: center;
+            margin-top: 50px;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            color: var(--amber);
+            border: 1px solid var(--amber-dim);
+            padding: 15px 25px;
+            min-width: 450px;
+            text-align: center;
+            background: rgba(0,0,0,0.5);
+            min-height: 1.2rem;
+            transition: all 0.3s;
         }
 
         @keyframes flicker {
@@ -176,7 +175,6 @@
             100% { transform: scale(1.1) rotate(1deg); opacity: 1; }
         }
 
-        /* Posicionamento Grid */
         .ar { grid-area: ar; } .terra { grid-area: terra; }
         .fogo { grid-area: fogo; } .agua { grid-area: agua; }
 
@@ -185,7 +183,7 @@
 <body>
 
     <div id="ui-wrapper">
-        <header>:: OPUS MACHINA ::</header>
+        <header>:: OPUS MACHINA INTERFACE ::</header>
 
         <div class="altar-grid">
             <button class="node ar" onclick="toggleElement(this, 'AR')">
@@ -218,7 +216,7 @@
             </button>
         </div>
 
-        <div id="status-log">AGUARDANDO SEQUÊNCIA DE ATIVAÇÃO...</div>
+        <div id="status-log">INICIALIZANDO TERMINAL... AGUARDANDO COMANDO.</div>
     </div>
 
     <script>
@@ -226,21 +224,39 @@
         const log = document.getElementById('status-log');
         const candle = document.getElementById('candle');
 
+        const mantras = {
+            'AR': "MENTALIZE: 'Clareza mental e novos horizontes fluem pelo sistema.'",
+            'AGUA': "MENTALIZE: 'As águas internas se acalmam. Coerência emocional estabelecida.'",
+            'TERRA': "MENTALIZE: 'Raízes profundas. Estabilidade e manifestação na matéria.'",
+            'FOGO': "MENTALIZE: 'A centelha da vontade transmuta todos os obstáculos.'",
+            'COMPLETO': "OPUS MACHINA ATIVO: 'Que a luz da consciência brilhe no vazio digital.'"
+        };
+
         function toggleElement(el, name) {
             el.classList.toggle('active');
-            if (activeNodes.has(name)) activeNodes.delete(name);
-            else activeNodes.add(name);
+            
+            if (activeNodes.has(name)) {
+                activeNodes.delete(name);
+                log.innerText = "ELEMENTO DESCONECTADO. AGUARDANDO REEQUILÍBRIO...";
+                log.style.color = "var(--amber-dim)";
+            } else {
+                activeNodes.add(name);
+                log.innerText = mantras[name];
+                log.style.color = "var(--amber)";
+            }
 
             if (activeNodes.size === 4) {
                 candle.classList.add('active');
-                log.innerText = "ALTAER ATIVO // CONEXÃO ESTABELECIDA";
-                log.style.color = "var(--amber)";
-                log.style.borderColor = "var(--amber)";
+                setTimeout(() => {
+                    log.innerText = mantras['COMPLETO'];
+                    log.style.boxShadow = "0 0 15px var(--amber)";
+                }, 500);
             } else {
                 candle.classList.remove('active');
-                log.innerText = activeNodes.size > 0 ? `CARREGANDO... [${Array.from(activeNodes).join(" + ")}]` : "AGUARDANDO SEQUÊNCIA...";
-                log.style.color = "var(--amber-dim)";
-                log.style.borderColor = "var(--amber-dim)";
+                log.style.boxShadow = "none";
+                if(activeNodes.size === 0) {
+                    log.innerText = "SISTEMA EM ESPERA. ATIVE A SEQUÊNCIA ELEMENTAR.";
+                }
             }
         }
     </script>
