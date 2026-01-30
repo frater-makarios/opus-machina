@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OPUS MACHINA // MOBILE READY</title>
+    <title>OPUS MACHINA // ORACLE</title>
     <style>
         :root {
             --amber: #ffb000;
@@ -26,199 +26,161 @@
             overflow: hidden;
         }
 
-        /* Scanlines mais suaves para não atrapalhar a leitura */
         body::before {
-            content: " ";
-            display: block;
-            position: absolute;
+            content: " "; display: block; position: absolute;
             top: 0; left: 0; bottom: 0; right: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%);
-            z-index: 100;
-            background-size: 100% 3px;
-            pointer-events: none;
+            z-index: 100; background-size: 100% 3px; pointer-events: none;
         }
 
         #ui-wrapper {
-            position: relative;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            padding: 20px;
+            position: relative; z-index: 10;
+            display: flex; flex-direction: column;
+            align-items: center; width: 100%; padding: 20px;
         }
 
         header {
-            font-weight: bold;
-            font-size: clamp(1rem, 4vw, 1.2rem);
-            letter-spacing: 3px;
-            border-bottom: 2px solid var(--amber);
-            padding-bottom: 8px;
-            margin-bottom: 5vh;
-            text-align: center;
+            font-weight: bold; font-size: 1.1rem; letter-spacing: 3px;
+            border-bottom: 2px solid var(--amber); padding-bottom: 8px; margin-bottom: 4vh;
         }
 
-        /* GRID RESPONSIVO */
         .altar-grid {
             display: grid;
-            grid-template-areas: 
-                ".      ar      ."
-                "agua   vela    terra"
-                ".      fogo    .";
+            grid-template-areas: ". ar ." "agua vela terra" ". fogo .";
             gap: clamp(15px, 5vw, 40px);
-            align-items: center;
-            justify-items: center;
+            align-items: center; justify-items: center;
         }
 
-        /* BOTÕES OTIMIZADOS */
         .node {
-            width: clamp(85px, 22vw, 120px);
-            height: clamp(85px, 22vw, 120px);
-            background: rgba(20, 15, 0, 0.9);
-            border: 1.5px solid var(--amber);
-            color: var(--amber);
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
+            width: clamp(80px, 20vw, 110px); height: clamp(80px, 20vw, 110px);
+            background: rgba(20, 15, 0, 0.9); border: 1.5px solid var(--amber);
+            color: var(--amber); cursor: pointer;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
 
-        .node.active {
-            background: var(--amber);
-            color: #000;
-            box-shadow: 0 0 20px var(--amber);
-        }
+        .node.active { background: var(--amber); color: #000; box-shadow: 0 0 20px var(--amber); }
 
-        /* Símbolos Alquímicos */
-        .symbol {
-            width: 0; height: 0;
-            border-left: 10px solid transparent;
-            border-right: 10px solid transparent;
-            margin-bottom: 8px;
-        }
+        /* Símbolos */
+        .symbol { width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; margin-bottom: 5px; }
         .fogo .symbol { border-bottom: 18px solid var(--amber); }
         .ar .symbol { border-bottom: 18px solid var(--amber); position: relative; }
         .ar .symbol::after { content:''; position:absolute; top:10px; left:-10px; width:20px; height:2px; background:var(--amber); }
         .agua .symbol { border-top: 18px solid var(--amber); }
         .terra .symbol { border-top: 18px solid var(--amber); position: relative; }
         .terra .symbol::after { content:''; position:absolute; top:-12px; left:-10px; width:20px; height:2px; background:var(--amber); }
+        .node.active .symbol, .node.active .symbol::after { border-color: transparent transparent #000 transparent; background: #000; }
+        .node.active .agua .symbol, .node.active .terra .symbol { border-color: #000 transparent transparent transparent; }
 
-        .node.active .symbol, .node.active .symbol::after { border-bottom-color: #000; border-top-color: #000; background: #000; }
+        .node b { font-size: 0.8rem; }
+        .node small { font-size: 0.55rem; font-weight: bold; }
 
-        .node b { font-size: 0.9rem; margin-bottom: 2px; }
-        .node small { font-size: 0.6rem; font-weight: bold; color: var(--amber-bright); }
-        .node.active small { color: #000; }
-
-        /* VELA CENTRAL */
-        .vela-container {
-            grid-area: vela;
-            width: 60px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .candle-base {
-            width: 25px;
-            height: 50px;
-            border: 2px solid var(--amber);
-            position: relative;
-        }
-
+        .vela-container { grid-area: vela; display: flex; flex-direction: column; align-items: center; }
+        .candle-base { width: 20px; height: 45px; border: 2px solid var(--amber); position: relative; }
         .flame {
-            width: 16px;
-            height: 28px;
-            background: var(--amber-bright);
-            border-radius: 50% 50% 35% 35%;
-            margin-bottom: 5px;
-            filter: blur(2px);
-            opacity: 0;
-            box-shadow: 0 0 15px var(--amber);
+            width: 14px; height: 24px; background: var(--amber-bright);
+            border-radius: 50% 50% 35% 35%; margin-bottom: 4px;
+            filter: blur(2px); opacity: 0; transition: opacity 0.5s;
         }
-
         .active .flame { opacity: 1; animation: flicker 0.1s infinite alternate; }
 
-        /* STATUS LOG MELHORADO */
         #status-log {
-            margin-top: 5vh;
-            font-size: clamp(0.75rem, 3.5vw, 0.9rem);
-            color: #fff; /* Branco para máxima legibilidade */
-            border: 1px solid var(--amber-dim);
-            padding: 15px;
-            width: 90vw;
-            max-width: 450px;
-            text-align: center;
-            background: rgba(20, 10, 0, 0.8);
-            min-height: 70px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            line-height: 1.4;
+            margin-top: 4vh; font-size: 0.8rem; color: #fff;
+            border: 1px solid var(--amber-dim); padding: 12px;
+            width: 90vw; max-width: 400px; text-align: center;
+            background: rgba(20, 10, 0, 0.8); min-height: 60px;
         }
 
-        @keyframes flicker {
-            0% { transform: scale(1); opacity: 0.8; }
-            100% { transform: scale(1.1); opacity: 1; }
+        /* Botão de Divinação */
+        #divine-btn {
+            display: none; margin-top: 20px;
+            background: #fff; color: #000;
+            border: none; padding: 12px 24px;
+            font-family: inherit; font-weight: bold;
+            cursor: pointer; letter-spacing: 2px;
+            animation: pulse 1.5s infinite;
         }
+
+        /* Modal da Carta */
+        #card-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 200;
+            flex-direction: column; align-items: center; justify-content: center;
+            padding: 20px; text-align: center;
+        }
+
+        .card-display {
+            border: 3px solid var(--amber); padding: 20px;
+            max-width: 300px; background: #111;
+            box-shadow: 0 0 30px var(--amber-dim);
+        }
+
+        .card-title { font-size: 1.5rem; margin: 10px 0; color: var(--amber); }
+        .card-desc { font-size: 0.9rem; color: #ccc; line-height: 1.4; }
+
+        @keyframes flicker { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
+        @keyframes pulse { 0% { opacity: 0.7; } 50% { opacity: 1; } 100% { opacity: 0.7; } }
 
         .ar { grid-area: ar; } .terra { grid-area: terra; }
         .fogo { grid-area: fogo; } .agua { grid-area: agua; }
-
     </style>
 </head>
 <body>
 
     <div id="ui-wrapper">
-        <header>OPUS MACHINA // ALTAR</header>
+        <header>OPUS MACHINA // V3</header>
 
         <div class="altar-grid">
             <button class="node ar" onclick="toggleElement(this, 'AR')">
                 <div class="symbol"></div>
-                <b>AR</b>
-                <small>INTELECTO</small>
+                <b>AR</b><small>INTELECTO</small>
             </button>
-
             <button class="node agua" onclick="toggleElement(this, 'AGUA')">
                 <div class="symbol"></div>
-                <b>ÁGUA</b>
-                <small>EMOÇÃO</small>
+                <b>ÁGUA</b><small>EMOÇÃO</small>
             </button>
-
             <div class="vela-container" id="candle">
                 <div class="flame"></div>
                 <div class="candle-base"></div>
             </div>
-
             <button class="node terra" onclick="toggleElement(this, 'TERRA')">
                 <div class="symbol"></div>
-                <b>TERRA</b>
-                <small>MATÉRIA</small>
+                <b>TERRA</b><small>MATÉRIA</small>
             </button>
-
             <button class="node fogo" onclick="toggleElement(this, 'FOGO')">
                 <div class="symbol"></div>
-                <b>FOGO</b>
-                <small>ENERGIA</small>
+                <b>FOGO</b><small>ENERGIA</small>
             </button>
         </div>
 
-        <div id="status-log">INICIALIZANDO TERMINAL...<br>AGUARDANDO SEQUÊNCIA.</div>
+        <div id="status-log">SISTEMA OFFLINE.<br>ATIVE OS QUATRO ELEMENTOS.</div>
+        <button id="divine-btn" onclick="openOracle()">[ INICIAR DIVINAÇÃO ]</button>
+    </div>
+
+    <div id="card-modal" onclick="this.style.display='none'">
+        <div class="card-display">
+            <small>ARQUÉTIPO DETECTADO:</small>
+            <div class="card-title" id="oracle-title">A TORRE</div>
+            <p class="card-desc" id="oracle-desc">Descrição aqui...</p>
+            <small style="color:var(--amber-dim)">[ TOQUE PARA FECHAR ]</small>
+        </div>
     </div>
 
     <script>
         const activeNodes = new Set();
         const log = document.getElementById('status-log');
         const candle = document.getElementById('candle');
+        const divineBtn = document.getElementById('divine-btn');
 
-        const mantras = {
-            'AR': "FOCO: Clareza mental e novos horizontes fluem agora.",
-            'AGUA': "FOCO: As águas internas se acalmam. Coerência emocional.",
-            'TERRA': "FOCO: Estabilidade e manifestação sólida na matéria.",
-            'FOGO': "FOCO: A vontade transmuta todos os obstáculos.",
-            'COMPLETO': "OPUS MACHINA ATIVO:<br>Que a luz da consciência brilhe no vazio."
-        };
+        const deck = [
+            { t: "O MAGO", d: "Domínio das ferramentas. O poder de manifestar a vontade através da tecnologia." },
+            { t: "A SACERDOTISA", d: "Conhecimento oculto nos bancos de dados. Silêncio e intuição profunda." },
+            { t: "O EREMITA", d: "Busca por verdade interna. Desconecte-se do ruído para encontrar o sinal." },
+            { t: "A RODA", d: "Ciclos de sistema. O que sobe, desce. Adapte-se à mudança de frequência." },
+            { t: "A JUSTIÇA", d: "Equilíbrio de equações. Ação e reação em perfeita sincronia lógica." },
+            { t: "A TORRE", d: "Ruptura necessária. Estruturas obsoletas colapsam para o novo surgir." },
+            { t: "A ESTRELA", d: "Esperança codificada. Luz guia no fim do túnel de dados." },
+            { t: "O LOUCO", d: "O salto no vazio. Início de uma jornada sem medo do erro de sistema." }
+        ];
 
         function toggleElement(el, name) {
             el.classList.toggle('active');
@@ -226,17 +188,20 @@
 
             if (activeNodes.size === 4) {
                 candle.classList.add('active');
-                log.innerHTML = mantras['COMPLETO'];
-                log.style.color = "var(--amber)";
+                log.innerHTML = "ALTAR EM EQUILÍBRIO.<br>SINAL ORACULAR DISPONÍVEL.";
+                divineBtn.style.display = "block";
             } else {
                 candle.classList.remove('active');
-                log.style.color = "#fff";
-                if(activeNodes.size === 0) {
-                    log.innerHTML = "SISTEMA EM ESPERA.<br>ATIVE A SEQUÊNCIA ELEMENTAR.";
-                } else {
-                    log.innerHTML = mantras[name];
-                }
+                divineBtn.style.display = "none";
+                log.innerHTML = activeNodes.size === 0 ? "SISTEMA OFFLINE." : "CARREGANDO FLUXO ELEMENTAR...";
             }
+        }
+
+        function openOracle() {
+            const card = deck[Math.floor(Math.random() * deck.length)];
+            document.getElementById('oracle-title').innerText = card.t;
+            document.getElementById('oracle-desc').innerText = card.d;
+            document.getElementById('card-modal').style.display = 'flex';
         }
     </script>
 </body>
