@@ -1,297 +1,45 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Opus Machina ∴ 0.2 [TECH-GNOSIS]</title>
-<style>
-:root {
-  --neon-green: #00ff41;
-  --dark-void: #050505;
-  --electric-blue: #00f2ff;
-  --circuit-line: #003311;
-}
-
-body {
-  background: var(--dark-void);
-  color: var(--neon-green);
-  font-family: 'Courier New', monospace;
-  margin: 0;
-  padding: 0 20px 20px;
-  text-align: center;
-  overflow-x: hidden;
-}
-
-/* EFEITO DE SCANLINE */
-body::before {
-  content: " ";
-  display: block;
-  position: fixed;
-  top: 0; left: 0; bottom: 0; right: 0;
-  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-  z-index: 10000;
-  background-size: 100% 4px, 3px 100%;
-  pointer-events: none;
-}
-
-header {
-  padding: 20px 0;
-  font-size: 24px;
-  letter-spacing: 4px;
-  text-shadow: 0 0 10px var(--neon-green);
-  border-bottom: 2px solid var(--circuit-line);
-  text-transform: uppercase;
-}
-
-.altar {
-  width: 300px;
-  height: 300px;
-  margin: 30px auto;
-  border: 2px solid var(--neon-green);
-  background: #001100;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 1fr 1fr 1fr;
-  align-items: center;
-  justify-items: center;
-  position: relative;
-  box-shadow: inset 0 0 20px #003300;
-  clip-path: polygon(10% 0, 90% 0, 100% 10%, 100% 90%, 90% 100%, 10% 100%, 0 90%, 0 10%);
-}
-
-.altar.iniciado {
-  box-shadow: 0 0 40px var(--neon-green), inset 0 0 20px var(--neon-green);
-  border-color: #fff;
-}
-
-.elemento {
-  font-size: 28px;
-  cursor: pointer;
-  opacity: .3;
-  transition: .4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  filter: grayscale(1);
-}
-
-.elemento.ativo {
-  opacity: 1;
-  filter: grayscale(0);
-  text-shadow: 0 0 20px currentColor, 0 0 40px currentColor;
-  transform: scale(1.3);
-}
-
-.ar.ativo { color: var(--electric-blue); }
-.fogo.ativo { color: #ff3c00; }
-.agua.ativo { color: #0077ff; }
-.terra.ativo { color: #00ff41; }
-
-.vela {
-  font-size: 40px;
-  cursor: pointer;
-  opacity: .2;
-  transition: .5s;
-}
-
-.vela.acesa {
-  opacity: 1;
-  filter: drop-shadow(0 0 15px #ffcc00);
-  animation: flicker 0.1s infinite alternate;
-}
-
-@keyframes flicker {
-  from { opacity: 0.9; }
-  to { opacity: 1; transform: scale(1.1); }
-}
-
-/* TERMINAL INTERFACE */
-textarea {
-  width: 100%;
-  max-width: 400px;
-  height: 60px;
-  background: #000;
-  color: var(--neon-green);
-  border: 1px solid var(--circuit-line);
-  padding: 10px;
-  font-family: monospace;
-  outline: none;
-}
-
-button {
-  width: 100%;
-  max-width: 420px;
-  padding: 15px;
-  margin-top: 10px;
-  background: transparent;
-  color: var(--neon-green);
-  border: 1px solid var(--neon-green);
-  cursor: pointer;
-  font-weight: bold;
-  letter-spacing: 2px;
-  transition: 0.3s;
-}
-
-button:hover {
-  background: var(--neon-green);
-  color: #000;
-  box-shadow: 0 0 20px var(--neon-green);
-}
-
-#barraEnergiaContainer {
-  width: 300px;
-  height: 8px;
-  margin: 10px auto;
-  border: 1px solid var(--circuit-line);
-  background: #001100;
-}
-
-#barraEnergia {
-  height: 100%;
-  background: var(--neon-green);
-  box-shadow: 0 0 10px var(--neon-green);
-}
-
-/* UI DECODING */
-#tarotCarta {
-  font-size: 14px;
-  border: 1px dashed var(--electric-blue);
-  padding: 15px;
-  margin-top: 20px;
-  background: rgba(0, 242, 255, 0.05);
-}
-
-.halo-fixo {
-  border: 1px solid var(--circuit-line);
-  position: absolute; width: 220px; height: 220px;
-  border-radius: 50%; top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-}
-</style>
+    <meta charset="UTF-8">
+    <title>Opus Machina | Altar Tecnomante</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div class="overlay"></div>
+    
+    <main class="altar-container">
+        <header>
+            <h1>OPUS_MACHINA // v1.0</h1>
+            <div class="status-bar">CONEXÃO ETÉREA: ESTÁVEL</div>
+        </header>
 
-<div id="modalIntro" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index:9999; display:flex; align-items:center; justify-content:center;">
-  <div style="border:1px solid var(--neon-green); padding:40px; background: #000;">
-    <h1 style="margin:0; font-size:18px;">INITIALIZING OPUS_MACHINA.SYS...</h1>
-    <p style="font-size:12px; color:var(--circuit-line)">[PROTOCOL: TECHNO-MAGIC_V0.2]</p>
-    <button id="entrarAltar">BOOT SYSTEM</button>
-  </div>
-</div>
+        <section class="grid-ritual">
+            <div class="elementos-set">
+                <button class="node" onclick="activate('terra')">TERRA</button>
+                <button class="node" onclick="activate('ar')">AR</button>
+                <button class="node" onclick="activate('fogo')">FOGO</button>
+                <button class="node" onclick="activate('agua')">ÁGUA</button>
+            </div>
 
-<header>OPUS MACHINA_v0.2</header>
+            <div class="core-altar">
+                <div class="vela-digital" id="vela">
+                    <div class="flama-pixel"></div>
+                </div>
+                <p>NÚCLEO DE IGNIÇÃO</p>
+            </div>
 
-<div id="barraEnergiaContainer">
-  <div id="barraEnergia"></div>
-</div>
-<div style="font-size: 10px; margin-bottom: 20px;">PWR_RESERVE: <span id="energiaTexto">100%</span></div>
+            <div class="tools-set">
+                <div class="card-slot" onclick="drawCard()">TAROT</div>
+                <div class="sigil-pad" onclick="activateSigil()">SIGILO</div>
+            </div>
+        </section>
 
-<div class="altar" id="altar">
-  <div class="halo-fixo"></div>
-  <div class="elemento ar" title="DATA_STREAM">◬</div>
-  <div class="elemento terra" title="HARDWARE">⬢</div>
-  <div class="vela" id="vela">⎔</div>
-  <div class="elemento fogo" title="OVERCLOCK">⚡</div>
-  <div class="elemento agua" title="LIQUID_COOLING">♒</div>
-</div>
+        <footer class="console-log">
+            <p id="log">> Aguardando inicialização do sistema...</p>
+        </footer>
+    </main>
 
-<div id="mensagens">
-  <div id="mensagem" style="min-height: 20px; font-size: 13px;">SYSTEM_READY</div>
-  <div id="tempo" style="color: var(--electric-blue)"></div>
-  <div id="tarotInstrucao"></div>
-  <div id="tarotCarta" class="show" style="opacity:0">Aguardando Input...</div>
-</div>
-
-<textarea id="intencao" placeholder="[INSIRA O CÓDIGO DO SEU DESEJO...]"></textarea>
-<button id="selar">EXECUTAR_SCRIPT</button>
-<button id="lerTarot" style="border-color: var(--electric-blue); color: var(--electric-blue);">DECODIFICAR_ORÁCULO</button>
-
-<script>
-// Mantive a lógica original, apenas ajustei mensagens e visual
-const altar=document.getElementById("altar");
-const vela=document.getElementById("vela");
-const elementos=document.querySelectorAll(".elemento");
-const tempoEl=document.getElementById("tempo");
-const mensagem=document.getElementById("mensagem");
-const tarotInstrucao=document.getElementById("tarotInstrucao");
-const tarotCarta=document.getElementById("tarotCarta");
-const campo=document.getElementById("intencao");
-const energiaTexto = document.getElementById("energiaTexto");
-const barraEnergia = document.getElementById("barraEnergia");
-
-let tempo=0, timer=null, energia=100;
-const vibrar=p=>navigator.vibrate&&navigator.vibrate(p);
-
-function atualizarBarraEnergia(){
-  barraEnergia.style.width = energia + "%";
-  energiaTexto.innerText = energia + "%";
-}
-
-setInterval(()=>{ if(energia<100){ energia++; atualizarBarraEnergia(); } },1500);
-
-elementos.forEach(e=>{
-  e.onclick=()=>{
-    e.classList.toggle("ativo");
-    vibrar(30);
-    mensagem.innerText = e.classList.contains("ativo") ? `SUB-SISTEMA_${e.title}_ON` : `SUB-SISTEMA_OFF`;
-  }
-});
-
-vela.onclick=()=>{
-  if(vela.classList.contains("acesa")){
-    vela.classList.remove("acesa");
-    clearInterval(timer);
-    mensagem.innerText="CORE_DORMANT";
-    return;
-  }
-  vela.classList.add("acesa");
-  tempo=30;
-  vibrar([50, 50, 100]);
-  mensagem.innerText="CORE_IGNITION_SEQUENCE";
-  timer=setInterval(()=>{
-    tempo--;
-    if(tempo>0){
-        tempoEl.innerText = `SYNCING: ${tempo}s`;
-    } else {
-        clearInterval(timer);
-        tempoEl.innerText = "SYSTEM_OPTIMIZED";
-        vibrar(200);
-    }
-  },1000);
-};
-
-document.getElementById("selar").onclick = () => {
-  if(!campo.value.trim() || !vela.classList.contains("acesa") || tempo > 0) {
-    mensagem.innerText = "ERRO: REQUISITOS_NÃO_PREENCHIDOS";
-    return;
-  }
-  
-  const todosAtivos = Array.from(elementos).every(el => el.classList.contains("ativo"));
-  if(!todosAtivos) { mensagem.innerText = "ERRO: CIRCUITOS_INCOMPLETOS"; return; }
-
-  if(energia < 40) { mensagem.innerText = "ERRO: LOW_BATTERY"; return; }
-  
-  energia -= 40;
-  atualizarBarraEnergia();
-  vibrar([500, 100, 500]);
-  mensagem.innerText = "SCRIPT_EXECUTADO: INTENÇÃO_ENVIADA_AO_COSMOS_DIGITAL";
-  altar.classList.add("iniciado");
-  setTimeout(()=>altar.classList.remove("iniciado"), 3000);
-};
-
-// Lógica de Tarot (Simplificada para o exemplo)
-document.getElementById("lerTarot").onclick = () => {
-    tarotCarta.style.opacity = 0;
-    mensagem.innerText = "SCANNEANDO_PROBABILIDADES...";
-    setTimeout(() => {
-        tarotCarta.innerHTML = "<strong>ARCANO_DECODIFICADO</strong><br>O CAOS É O ÚNICO PADRÃO.";
-        tarotCarta.style.opacity = 1;
-        vibrar(100);
-    }, 2000);
-};
-
-document.getElementById("entrarAltar").onclick = () => {
-  document.getElementById("modalIntro").style.display = "none";
-};
-</script>
-
+    <script src="script.js"></script>
 </body>
 </html>
