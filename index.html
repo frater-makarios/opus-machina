@@ -3,28 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OPUS MACHINA // Tecnomancia</title>
+    <title>OPUS MACHINA // Altar Digital</title>
     <style>
-        /* Estética CRT / Amber Monitor */
         :root {
             --amber: #ffb000;
-            --amber-dim: #946500;
-            --bg: #0d0800;
-            --crt-glow: rgba(255, 176, 0, 0.2);
+            --amber-dim: #443000;
+            --bg: #050505;
         }
 
         body {
             background-color: var(--bg);
             color: var(--amber);
             font-family: 'Courier New', Courier, monospace;
+            height: 100vh;
+            margin: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            margin: 0;
             overflow: hidden;
-            text-transform: uppercase;
         }
 
         /* Efeito de Scanlines */
@@ -33,165 +30,189 @@
             display: block;
             position: absolute;
             top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%);
             z-index: 10;
-            background-size: 100% 4px, 3px 100%;
+            background-size: 100% 4px;
             pointer-events: none;
         }
 
-        #ui-layer {
+        #ui-wrapper {
             z-index: 5;
-            text-align: center;
-            width: 90%;
-            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
         }
 
         header {
+            text-align: center;
+            letter-spacing: 4px;
             border: 1px solid var(--amber);
-            padding: 10px;
-            margin-bottom: 40px;
+            padding: 10px 20px;
+            margin-bottom: 20px;
             box-shadow: 0 0 10px var(--amber-dim);
-            animation: flicker 0.15s infinite alternate;
         }
 
-        /* A Vela Virtual */
-        #altar-center {
-            position: relative;
-            height: 200px;
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
-            margin-bottom: 50px;
+        /* Container do Altar em Cruz */
+        .altar-grid {
+            display: grid;
+            grid-template-areas: 
+                ".      ar      ."
+                "agua   vela    terra"
+                ".      fogo    .";
+            gap: 20px;
+            align-items: center;
+            justify-items: center;
         }
 
-        .candle-body {
-            width: 40px;
+        /* Estilo dos Botões Elementares */
+        .node {
+            width: 100px;
             height: 100px;
-            border: 2px solid var(--amber);
             background: transparent;
+            border: 1px solid var(--amber);
+            color: var(--amber);
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.7rem;
+            transition: all 0.4s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .node:hover {
+            background: rgba(255, 176, 0, 0.1);
+            box-shadow: 0 0 15px var(--amber-dim);
+        }
+
+        .node.active {
+            background: var(--amber);
+            color: black;
+            box-shadow: 0 0 25px var(--amber);
+        }
+
+        /* Posicionamento dos Elementos */
+        .ar    { grid-area: ar; }
+        .terra { grid-area: terra; }
+        .fogo  { grid-area: fogo; }
+        .agua  { grid-area: agua; }
+
+        /* Vela Central */
+        .vela-container {
+            grid-area: vela;
+            width: 80px;
+            height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            position: relative;
+        }
+
+        .candle-base {
+            width: 30px;
+            height: 60px;
+            border: 2px solid var(--amber);
             position: relative;
         }
 
         .flame {
-            width: 20px;
-            height: 30px;
+            width: 15px;
+            height: 25px;
             background: var(--amber);
             border-radius: 50% 50% 20% 20%;
             position: absolute;
-            top: -40px;
-            left: 10px;
-            filter: blur(5px);
+            top: -35px;
+            left: 5px;
+            filter: blur(4px);
             opacity: 0;
-            transition: opacity 0.5s ease;
-            box-shadow: 0 0 20px var(--amber);
+            transition: opacity 0.8s ease;
         }
 
         .active .flame {
             opacity: 1;
-            animation: burn 0.1s infinite alternate;
+            animation: flicker 0.1s infinite alternate;
         }
 
-        /* Controles Elementares */
-        .controls {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+        /* Log de Status */
+        #status-log {
+            margin-top: 30px;
+            font-size: 0.75rem;
+            width: 300px;
+            text-align: center;
+            height: 20px;
+            color: var(--amber-dim);
         }
 
-        button {
-            background: transparent;
-            color: var(--amber);
-            border: 1px solid var(--amber);
-            padding: 15px;
-            cursor: pointer;
-            font-family: inherit;
-            transition: all 0.3s;
-        }
-
-        button:hover {
-            background: var(--amber-dim);
-            color: black;
-        }
-
-        button.active {
-            background: var(--amber);
-            color: black;
-            box-shadow: 0 0 15px var(--amber);
-        }
-
-        /* Animações */
         @keyframes flicker {
-            0% { opacity: 0.97; }
-            100% { opacity: 1; }
+            0% { transform: scale(1) translateY(0); opacity: 0.8; }
+            100% { transform: scale(1.1) translateY(-2px); opacity: 1; }
         }
 
-        @keyframes burn {
-            0% { transform: scale(1) skewX(2deg); }
-            100% { transform: scale(1.1) skewX(-2deg); }
-        }
-
-        footer {
-            margin-top: 40px;
-            font-size: 0.8rem;
-            letter-spacing: 2px;
-        }
     </style>
 </head>
 <body>
 
-    <div id="ui-layer">
+    <div id="ui-wrapper">
         <header>
-            OPUS MACHINA // SISTEMA DE TRANSCENDÊNCIA v1.0.4
+            OPUS MACHINA // RITUAL_TERMINAL
         </header>
 
-        <div id="altar-center">
-            <div class="candle-body" id="candle">
+        <div class="altar-grid">
+            <button class="node ar" onclick="toggleElement(this, 'AR')">
+                <span>[ AR ]</span>
+                <small>INTELECTO</small>
+            </button>
+
+            <button class="node agua" onclick="toggleElement(this, 'AGUA')">
+                <span>[ ÁGUA ]</span>
+                <small>EMOÇÃO</small>
+            </button>
+
+            <div class="vela-container" id="candle">
                 <div class="flame"></div>
+                <div class="candle-base"></div>
             </div>
+
+            <button class="node terra" onclick="toggleElement(this, 'TERRA')">
+                <span>[ TERRA ]</span>
+                <small>MATÉRIA</small>
+            </button>
+
+            <button class="node fogo" onclick="toggleElement(this, 'FOGO')">
+                <span>[ FOGO ]</span>
+                <small>ENERGIA</small>
+            </button>
         </div>
 
-        <div class="controls">
-            <button onclick="toggleElement(this, 'terra')">[ TERRA ]<br>ESTABILIZAR</button>
-            <button onclick="toggleElement(this, 'ar')">[ AR ]<br>FLUXO</button>
-            <button onclick="toggleElement(this, 'fogo')">[ FOGO ]<br>IGNIÇÃO</button>
-            <button onclick="toggleElement(this, 'agua')">[ ÁGUA ]<br>COERÊNCIA</button>
-        </div>
-
-        <footer id="status-log">
-            SISTEMA EM ESPERA. ATIVE OS ELEMENTOS.
-        </footer>
+        <div id="status-log">AGUARDANDO INPUT ELEMENTAR...</div>
     </div>
 
     <script>
-        const activeElements = new Set();
+        const state = new Set();
         const log = document.getElementById('status-log');
         const candle = document.getElementById('candle');
 
-        function toggleElement(btn, element) {
-            btn.classList.toggle('active');
+        function toggleElement(el, name) {
+            el.classList.toggle('active');
             
-            if (activeElements.has(element)) {
-                activeElements.delete(element);
-                log.innerText = `DESCONECTANDO: ${element.toUpperCase()}...`;
+            if (state.has(name)) {
+                state.delete(name);
+                log.innerText = `LINK ${name} ROMPIDO.`;
             } else {
-                activeElements.add(element);
-                log.innerText = `ELEMENTO ${element.toUpperCase()} CARREGADO NO BUFFER.`;
+                state.add(name);
+                log.innerText = `LINK ${name} ESTABELECIDO.`;
             }
 
-            checkAltar();
-        }
-
-        function checkAltar() {
-            if (activeElements.size === 4) {
+            if (state.size === 4) {
                 candle.classList.add('active');
-                log.innerText = "ALTAER ATIVO: CONEXÃO COM O ÉTER ESTABELECIDA.";
-                document.body.style.textShadow = "0 0 5px var(--amber)";
+                log.innerText = "ASCENSÃO COMPLETA. OPUS MACHINA ATIVO.";
+                log.style.color = "var(--amber)";
             } else {
                 candle.classList.remove('active');
-                if(activeElements.size === 0) {
-                    log.innerText = "SISTEMA EM ESPERA. ATIVE OS ELEMENTOS.";
-                }
+                log.style.color = "var(--amber-dim)";
             }
         }
     </script>
