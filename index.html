@@ -2,45 +2,198 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Opus Machina | Altar Tecnomante</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OPUS MACHINA // Tecnomancia</title>
+    <style>
+        /* Estética CRT / Amber Monitor */
+        :root {
+            --amber: #ffb000;
+            --amber-dim: #946500;
+            --bg: #0d0800;
+            --crt-glow: rgba(255, 176, 0, 0.2);
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--amber);
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            text-transform: uppercase;
+        }
+
+        /* Efeito de Scanlines */
+        body::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 10;
+            background-size: 100% 4px, 3px 100%;
+            pointer-events: none;
+        }
+
+        #ui-layer {
+            z-index: 5;
+            text-align: center;
+            width: 90%;
+            max-width: 600px;
+        }
+
+        header {
+            border: 1px solid var(--amber);
+            padding: 10px;
+            margin-bottom: 40px;
+            box-shadow: 0 0 10px var(--amber-dim);
+            animation: flicker 0.15s infinite alternate;
+        }
+
+        /* A Vela Virtual */
+        #altar-center {
+            position: relative;
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            margin-bottom: 50px;
+        }
+
+        .candle-body {
+            width: 40px;
+            height: 100px;
+            border: 2px solid var(--amber);
+            background: transparent;
+            position: relative;
+        }
+
+        .flame {
+            width: 20px;
+            height: 30px;
+            background: var(--amber);
+            border-radius: 50% 50% 20% 20%;
+            position: absolute;
+            top: -40px;
+            left: 10px;
+            filter: blur(5px);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            box-shadow: 0 0 20px var(--amber);
+        }
+
+        .active .flame {
+            opacity: 1;
+            animation: burn 0.1s infinite alternate;
+        }
+
+        /* Controles Elementares */
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        button {
+            background: transparent;
+            color: var(--amber);
+            border: 1px solid var(--amber);
+            padding: 15px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: var(--amber-dim);
+            color: black;
+        }
+
+        button.active {
+            background: var(--amber);
+            color: black;
+            box-shadow: 0 0 15px var(--amber);
+        }
+
+        /* Animações */
+        @keyframes flicker {
+            0% { opacity: 0.97; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes burn {
+            0% { transform: scale(1) skewX(2deg); }
+            100% { transform: scale(1.1) skewX(-2deg); }
+        }
+
+        footer {
+            margin-top: 40px;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+        }
+    </style>
 </head>
 <body>
-    <div class="overlay"></div>
-    
-    <main class="altar-container">
+
+    <div id="ui-layer">
         <header>
-            <h1>OPUS_MACHINA // v1.0</h1>
-            <div class="status-bar">CONEXÃO ETÉREA: ESTÁVEL</div>
+            OPUS MACHINA // SISTEMA DE TRANSCENDÊNCIA v1.0.4
         </header>
 
-        <section class="grid-ritual">
-            <div class="elementos-set">
-                <button class="node" onclick="activate('terra')">TERRA</button>
-                <button class="node" onclick="activate('ar')">AR</button>
-                <button class="node" onclick="activate('fogo')">FOGO</button>
-                <button class="node" onclick="activate('agua')">ÁGUA</button>
+        <div id="altar-center">
+            <div class="candle-body" id="candle">
+                <div class="flame"></div>
             </div>
+        </div>
 
-            <div class="core-altar">
-                <div class="vela-digital" id="vela">
-                    <div class="flama-pixel"></div>
-                </div>
-                <p>NÚCLEO DE IGNIÇÃO</p>
-            </div>
+        <div class="controls">
+            <button onclick="toggleElement(this, 'terra')">[ TERRA ]<br>ESTABILIZAR</button>
+            <button onclick="toggleElement(this, 'ar')">[ AR ]<br>FLUXO</button>
+            <button onclick="toggleElement(this, 'fogo')">[ FOGO ]<br>IGNIÇÃO</button>
+            <button onclick="toggleElement(this, 'agua')">[ ÁGUA ]<br>COERÊNCIA</button>
+        </div>
 
-            <div class="tools-set">
-                <div class="card-slot" onclick="drawCard()">TAROT</div>
-                <div class="sigil-pad" onclick="activateSigil()">SIGILO</div>
-            </div>
-        </section>
-
-        <footer class="console-log">
-            <p id="log">> Aguardando inicialização do sistema...</p>
+        <footer id="status-log">
+            SISTEMA EM ESPERA. ATIVE OS ELEMENTOS.
         </footer>
-    </main>
+    </div>
 
-    <script src="script.js"></script>
+    <script>
+        const activeElements = new Set();
+        const log = document.getElementById('status-log');
+        const candle = document.getElementById('candle');
+
+        function toggleElement(btn, element) {
+            btn.classList.toggle('active');
+            
+            if (activeElements.has(element)) {
+                activeElements.delete(element);
+                log.innerText = `DESCONECTANDO: ${element.toUpperCase()}...`;
+            } else {
+                activeElements.add(element);
+                log.innerText = `ELEMENTO ${element.toUpperCase()} CARREGADO NO BUFFER.`;
+            }
+
+            checkAltar();
+        }
+
+        function checkAltar() {
+            if (activeElements.size === 4) {
+                candle.classList.add('active');
+                log.innerText = "ALTAER ATIVO: CONEXÃO COM O ÉTER ESTABELECIDA.";
+                document.body.style.textShadow = "0 0 5px var(--amber)";
+            } else {
+                candle.classList.remove('active');
+                if(activeElements.size === 0) {
+                    log.innerText = "SISTEMA EM ESPERA. ATIVE OS ELEMENTOS.";
+                }
+            }
+        }
+    </script>
 </body>
 </html>
-
